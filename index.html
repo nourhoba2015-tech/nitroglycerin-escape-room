@@ -1,0 +1,4633 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Nitroglycerin Escape Room: أنقذ عم سعيد! | لعبة تعليمية عن النيتروجليسرين</title>
+  <meta name="description" content="لعبة غرفة هروب تعليمية تفاعلية بالعربية المصرية لتعليم مرضى القلب الاستخدام الآمن لدواء النيتروجليسرين." />
+  <meta property="og:title" content="Nitroglycerin Escape Room: أنقذ عم سعيد!" />
+  <meta property="og:description" content="لعبة غرفة هروب تعليمية تفاعلية بالعربية المصرية لتعليم مرضى القلب الاستخدام الآمن لدواء النيتروجليسرين." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-warm: #F4EFE6;
+      --surface: #FFFDF9;
+      --surface-soft: #F7F2E8;
+      --ink: #261E1A;
+      --ink-muted: #5C4E45;
+      --border: #E2D7C7;
+      --accent-teal: #0F766E;
+      --accent-teal-dark: #115E59;
+      --accent-amber: #D97706;
+      --accent-red: #DC2626;
+      --accent-red-soft: #FEE2E2;
+      --accent-green: #15803D;
+      --accent-green-soft: #DCFCE7;
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --shadow-card: 0 18px 45px rgba(38, 30, 26, 0.18);
+      --shadow-soft: 0 4px 14px rgba(38, 30, 26, 0.08);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: 'Cairo', 'Tajawal', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-warm);
+      color: var(--ink);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    button, input {
+      font-family: inherit;
+      touch-action: manipulation;
+    }
+
+    button:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+      outline: 3px solid var(--accent-amber);
+      outline-offset: 2px;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* App Layout */
+    .app-shell {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(circle at top center, #FAF6EE 0%, #EFE6D6 100%);
+    }
+
+    /* HUD Top Bar */
+    .hud {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: #1F1916;
+      color: #FAF6EE;
+      border-bottom: 2px solid #3A2E28;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: nowrap;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+    }
+
+    .hud-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .hud-logo-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--accent-red);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
+    }
+
+    .hud-title-group {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .hud-title {
+      font-size: clamp(0.98rem, 1.45vw, 1.2rem);
+      font-weight: 800;
+      color: #FFFDF9;
+      letter-spacing: -0.01em;
+    }
+
+    .hud-player {
+      font-size: 0.85rem;
+      color: #D6C7B5;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 160px;
+    }
+
+    .hud-sep {
+      color: #78665A;
+    }
+
+    /* Timer + ECG Monitor */
+    .hud-monitor {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #121817;
+      border: 1.5px solid #2A3C38;
+      border-radius: 12px;
+      padding: 5px 12px;
+      flex-shrink: 0;
+      transition: border-color 0.2s var(--ease-out), background-color 0.2s var(--ease-out);
+    }
+
+    .hud-monitor.warning {
+      border-color: #D97706;
+      background: #1E1810;
+    }
+
+    .hud-monitor.danger {
+      border-color: #EF4444;
+      background: #281212;
+    }
+
+    .ecg-wrap {
+      width: 104px;
+      height: 28px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .ecg-svg {
+      width: 224px;
+      height: 28px;
+      flex-shrink: 0;
+      animation: ecg-scroll-rtl var(--ecg-speed, 2.2s) linear infinite;
+    }
+
+    @keyframes ecg-scroll-rtl {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(112px); }
+    }
+
+    .timer-readout {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #34D399;
+      letter-spacing: 0.04em;
+      min-width: 58px;
+      text-align: center;
+      direction: ltr;
+    }
+
+    .hud-monitor.warning .timer-readout { color: #FBBF24; }
+    .hud-monitor.danger .timer-readout { color: #F87171; }
+
+    .bpm-label {
+      font-size: 0.72rem;
+      color: #8FB8AD;
+      font-weight: 700;
+      white-space: nowrap;
+      direction: ltr;
+    }
+
+    /* Code Tracker + Controls */
+    .hud-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .code-tracker {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: #2C231F;
+      border: 1px solid #483A33;
+      padding: 5px 10px;
+      border-radius: 10px;
+    }
+
+    .code-label {
+      font-size: 0.78rem;
+      color: #D6C7B5;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .code-slots {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      direction: ltr;
+    }
+
+    .code-slot {
+      width: 25px;
+      height: 26px;
+      border-radius: 6px;
+      background: #171210;
+      border: 1.5px solid #52433B;
+      color: #8C7A6E;
+      font-weight: 900;
+      font-size: 0.92rem;
+      display: grid;
+      place-items: center;
+      transition: transform 0.25s var(--ease-out), background-color 0.25s, border-color 0.25s, color 0.25s;
+    }
+
+    .code-slot.unlocked {
+      background: #0F766E;
+      border-color: #2DD4BF;
+      color: #FFFFFF;
+      transform: scale(1.08);
+      box-shadow: 0 0 10px rgba(45, 212, 191, 0.35);
+    }
+
+    .code-dash {
+      color: #78665A;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .sound-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1.5px solid #483A33;
+      background: #2C231F;
+      color: #FAF6EE;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: background-color 0.18s var(--ease-out), transform 0.15s var(--ease-out);
+      flex-shrink: 0;
+    }
+
+    .sound-btn:hover {
+      background: #3E312B;
+      transform: translateY(-1px);
+    }
+
+    .sound-btn.muted {
+      color: #9C8B7E;
+      border-color: #3A2E28;
+    }
+
+    /* Main Room Stage */
+    .stage-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 20px 10px;
+      position: relative;
+    }
+
+    .room-frame {
+      width: 100%;
+      max-width: 1220px;
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      background: #2C221E;
+      border: 4px solid #3B2E27;
+      box-shadow: 0 22px 55px rgba(38, 30, 26, 0.24);
+    }
+
+    .room-scroll {
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .room-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+    }
+
+    .room-swipe-hint {
+      display: none;
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(31, 25, 22, 0.84);
+      color: #FFFDF9;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: 6;
+      white-space: nowrap;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      transition: opacity 0.35s ease;
+    }
+
+    .room-swipe-hint.hidden {
+      opacity: 0;
+    }
+
+    /* Interactive Hotspots inside SVG */
+    .hotspot {
+      cursor: pointer;
+      transition: filter 0.2s var(--ease-out);
+      outline: none;
+    }
+
+    .hotspot .hotspot-glow {
+      opacity: 0.72;
+      animation: hotspot-pulse 2.2s ease-in-out infinite;
+    }
+
+    .hotspot.solved .hotspot-glow {
+      animation: none;
+      opacity: 0.28;
+    }
+
+    .hotspot:hover, .hotspot:focus-visible {
+      filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.78));
+    }
+
+    .hotspot:hover .hotspot-tag {
+      transform: translateY(-4px);
+    }
+
+    .hotspot-tag {
+      transition: transform 0.2s var(--ease-out);
+    }
+
+    @keyframes hotspot-pulse {
+      0%, 100% { opacity: 0.32; }
+      50% { opacity: 0.88; }
+    }
+
+    /* Uncle Saeed subtle breathing */
+    .saeed-breath {
+      animation: gentle-breathe 3s ease-in-out infinite;
+      transform-origin: 602px 410px;
+    }
+
+    @keyframes gentle-breathe {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.015); }
+    }
+
+    /* Room Bottom Guide Bar */
+    .room-footer-bar {
+      width: 100%;
+      max-width: 1220px;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 0 4px;
+    }
+
+    .mission-hint {
+      font-size: 0.94rem;
+      color: var(--ink-muted);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 8px;
+    }
+
+    /* Subtle Thin Footer Credit */
+    .app-footer {
+      text-align: center;
+      padding: 10px 16px 14px;
+      font-size: 0.94rem;
+      font-weight: 400;
+      color: #6B5E54;
+      letter-spacing: 0.01em;
+    }
+
+    /* Red Flash & Shake for Penalty */
+    .penalty-flash {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle, rgba(220,38,38,0.08) 30%, rgba(220,38,38,0.45) 100%);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 120;
+      transition: opacity 0.18s ease-out;
+    }
+
+    .penalty-flash.active {
+      opacity: 1;
+    }
+
+    .penalty-toast {
+      position: fixed;
+      top: 76px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-16px);
+      background: var(--accent-red);
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 0.98rem;
+      padding: 10px 22px;
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(220, 38, 38, 0.35);
+      z-index: 130;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s var(--ease-out), transform 0.2s var(--ease-out);
+      white-space: nowrap;
+    }
+
+    .penalty-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .shake-anim {
+      animation: screen-shake 0.42s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes screen-shake {
+      10%, 90% { transform: translate3d(-4px, 0, 0); }
+      20%, 80% { transform: translate3d(6px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-7px, 0, 0); }
+      40%, 60% { transform: translate3d(7px, 0, 0); }
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(24, 18, 14, 0.72);
+      backdrop-filter: blur(4px);
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: fade-in 0.2s var(--ease-out);
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 800px;
+      max-height: calc(100vh - 32px);
+      overflow-y: auto;
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-card);
+      position: relative;
+      animation: modal-pop 0.24s var(--ease-out);
+    }
+
+    .modal-card.wide {
+      max-width: 900px;
+    }
+
+    @keyframes modal-pop {
+      from { opacity: 0; transform: translateY(14px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+      padding: 16px 24px;
+      background: var(--surface-soft);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .modal-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .modal-kicker {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent-teal);
+    }
+
+    .modal-title {
+      font-size: 1.32rem;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    .modal-close {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 1.25rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition: background-color 0.16s, border-color 0.16s;
+    }
+
+    .modal-close:hover {
+      background: var(--accent-red-soft);
+      border-color: #FCA5A5;
+      color: var(--accent-red);
+    }
+
+    .modal-body {
+      padding: 20px 24px 24px;
+    }
+
+    /* Typography & Helpers inside Modals */
+    .story-lead {
+      font-size: 1.04rem;
+      line-height: 1.75;
+      color: var(--ink);
+      margin-bottom: 18px;
+    }
+
+    .instruction-box {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 13px 16px;
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--ink);
+    }
+
+    .instruction-box strong {
+      color: var(--accent-teal-dark);
+    }
+
+    .section-step-title {
+      font-size: 1.06rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: var(--accent-teal);
+      color: #FFF;
+      font-size: 0.88rem;
+      font-weight: 800;
+      display: inline-grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    /* Primary & Secondary Buttons */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      min-height: 46px;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent-teal);
+      color: #FFFFFF;
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1.4;
+      text-align: center;
+      cursor: pointer;
+      white-space: normal;
+      box-shadow: 0 6px 16px rgba(15, 118, 110, 0.25);
+      transition: background-color 0.18s var(--ease-out), transform 0.15s var(--ease-out);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-teal-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      min-height: 46px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.4;
+      text-align: center;
+      cursor: pointer;
+      white-space: normal;
+      transition: background-color 0.16s, border-color 0.16s;
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-soft);
+      border-color: #C7B9A5;
+    }
+
+    .btn-amber {
+      background: var(--accent-amber);
+      box-shadow: 0 6px 16px rgba(217, 119, 6, 0.26);
+    }
+
+    .btn-amber:hover {
+      background: #B45309;
+    }
+
+    /* Start Screen Styling */
+    .start-hero {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .start-portrait {
+      background: #FBF4E4;
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 10px;
+      display: grid;
+      place-items: center;
+    }
+
+    .rules-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .rule-item {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .rule-item-val {
+      font-size: 1.18rem;
+      font-weight: 900;
+      color: var(--accent-teal-dark);
+      margin-bottom: 2px;
+    }
+
+    .rule-item-val.danger {
+      color: var(--accent-red);
+    }
+
+    .rule-item-lbl {
+      font-size: 0.83rem;
+      color: var(--ink-muted);
+      font-weight: 700;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      align-items: stretch;
+      flex-wrap: wrap;
+    }
+
+    .name-input {
+      flex: 1;
+      min-width: 220px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #FFFFFF;
+      color: var(--ink);
+      font-size: 1rem;
+      font-weight: 700;
+      transition: border-color 0.16s;
+    }
+
+    .name-input:focus {
+      border-color: var(--accent-teal);
+    }
+
+    /* Feedback Banner inside Modals */
+    .feedback-msg {
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.93rem;
+      font-weight: 700;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .feedback-msg.show { display: block; }
+
+    .feedback-msg.error {
+      background: var(--accent-red-soft);
+      border: 1px solid #FCA5A5;
+      color: #991B1B;
+    }
+
+    .feedback-msg.success {
+      background: var(--accent-green-soft);
+      border: 1px solid #86EFAC;
+      color: #14532D;
+    }
+
+    /* Quiz Options */
+    .quiz-block {
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .quiz-block:last-of-type {
+      border-bottom: none;
+      margin-bottom: 10px;
+      padding-bottom: 0;
+    }
+
+    .quiz-q {
+      font-size: 1rem;
+      font-weight: 800;
+      margin-bottom: 9px;
+      color: var(--ink);
+    }
+
+    .option-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: right;
+      padding: 11px 14px;
+      border-radius: 11px;
+      border: 1.5px solid var(--border);
+      background: #FFFFFF;
+      color: var(--ink);
+      font-size: 0.93rem;
+      font-weight: 600;
+      line-height: 1.5;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      transition: background-color 0.16s, border-color 0.16s, transform 0.14s;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: #FFFBF2;
+      border-color: var(--accent-amber);
+    }
+
+    .option-btn.selected {
+      background: #ECFDF5;
+      border-color: var(--accent-teal);
+      color: #064E3B;
+      font-weight: 700;
+    }
+
+    .option-btn.correct {
+      background: var(--accent-green-soft);
+      border-color: var(--accent-green);
+      color: #14532D;
+      font-weight: 700;
+    }
+
+    .option-btn.wrong {
+      background: var(--accent-red-soft);
+      border-color: var(--accent-red);
+      color: #991B1B;
+    }
+
+    .option-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid #C5B6A2;
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: grid;
+      place-items: center;
+      font-size: 0.82rem;
+      font-weight: 900;
+      background: #FFF;
+    }
+
+    .option-btn.selected .option-check,
+    .option-btn.correct .option-check {
+      background: var(--accent-teal);
+      border-color: var(--accent-teal);
+      color: #FFF;
+    }
+
+    /* Puzzle 1 Interactive Storage Board */
+    .storage-arena {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .storage-zone {
+      border-radius: 16px;
+      padding: 16px;
+      border: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+      position: relative;
+      transition: border-color 0.2s, background-color 0.2s, transform 0.2s;
+    }
+
+    .storage-zone.sunny {
+      background: linear-gradient(150deg, #FFF7D6 0%, #FDE68A 100%);
+      border-color: #F59E0B;
+    }
+
+    .storage-zone.shaded {
+      background: linear-gradient(150deg, #F0FDF4 0%, #DCFCE7 100%);
+      border-color: #10B981;
+    }
+
+    .storage-zone.drag-over {
+      border-color: var(--accent-teal-dark);
+      transform: scale(1.02);
+      box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.2);
+    }
+
+    .zone-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .zone-sub {
+      font-size: 0.82rem;
+      color: var(--ink-muted);
+      font-weight: 600;
+    }
+
+    .pill-tray {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      min-height: 54px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nitro-pill-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid #B45309;
+      background: radial-gradient(circle at 35% 30%, #FFFFFF 0%, #F3EFE6 65%, #DFD5C3 100%);
+      box-shadow: 0 4px 10px rgba(180, 83, 9, 0.22);
+      cursor: grab;
+      display: grid;
+      place-items: center;
+      font-size: 0.72rem;
+      font-weight: 900;
+      color: #5C4E45;
+      transition: transform 0.18s var(--ease-out), box-shadow 0.18s;
+    }
+
+    .nitro-pill-btn:hover {
+      transform: translateY(-4px) scale(1.08);
+      box-shadow: 0 8px 16px rgba(180, 83, 9, 0.3);
+    }
+
+    .nitro-pill-btn:active {
+      cursor: grabbing;
+    }
+
+    .bottle-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .storage-checklist {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--ink-muted);
+      margin-bottom: 14px;
+    }
+
+    .storage-checklist span.done {
+      color: var(--accent-green);
+    }
+
+    /* Puzzle 2 Ordering Cards */
+    .order-slots {
+      display: grid;
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .order-slot-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px dashed #C7B9A5;
+      background: var(--surface-soft);
+      min-height: 52px;
+      transition: border-color 0.18s, background-color 0.18s;
+    }
+
+    .order-slot-row.filled {
+      border-style: solid;
+      border-color: var(--accent-teal);
+      background: #FFFFFF;
+    }
+
+    .slot-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #E2D7C7;
+      color: var(--ink);
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .order-slot-row.filled .slot-badge {
+      background: var(--accent-teal);
+      color: #FFF;
+    }
+
+    .slot-text {
+      flex: 1;
+      font-size: 0.93rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .slot-placeholder {
+      color: #8C7A6E;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .slot-remove-btn {
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      color: var(--ink-muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .slot-remove-btn:hover {
+      background: var(--accent-red-soft);
+      color: var(--accent-red);
+      border-color: #FCA5A5;
+    }
+
+    .step-bank {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .step-card-btn {
+      text-align: right;
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: #FFFFFF;
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.5;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.16s var(--ease-out), border-color 0.16s, background-color 0.16s;
+    }
+
+    .step-card-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      border-color: var(--accent-amber);
+      background: #FFFBF2;
+    }
+
+    .step-card-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Drawer Grid (Puzzle 4) */
+    .drawer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 11px;
+      margin-bottom: 14px;
+    }
+
+    .drawer-item {
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      background: #FFFFFF;
+      padding: 13px;
+      text-align: right;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      transition: transform 0.18s var(--ease-out), border-color 0.18s, background-color 0.18s, opacity 0.25s;
+    }
+
+    .drawer-item:hover:not(.removed) {
+      transform: translateY(-2px);
+      border-color: var(--accent-amber);
+      background: #FFFBF4;
+    }
+
+    .drawer-item.removed {
+      background: #FEF2F2;
+      border-color: #FCA5A5;
+      opacity: 0.72;
+      cursor: default;
+    }
+
+    .drawer-item.safe-checked {
+      background: var(--accent-green-soft);
+      border-color: #86EFAC;
+    }
+
+    .drawer-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
+      background: var(--surface-soft);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .drawer-item-title {
+      font-size: 0.94rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+
+    .drawer-item-desc {
+      font-size: 0.81rem;
+      color: var(--ink-muted);
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .drawer-status-tag {
+      display: inline-block;
+      margin-top: 5px;
+      font-size: 0.77rem;
+      font-weight: 800;
+      color: var(--accent-red);
+    }
+
+    /* Myths vs Facts (Puzzle 5) */
+    .myth-list {
+      display: grid;
+      gap: 11px;
+      margin-bottom: 14px;
+    }
+
+    .myth-card {
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      background: #FFFFFF;
+      padding: 13px 16px;
+    }
+
+    .myth-card.solved-myth {
+      border-color: #86EFAC;
+      background: #F0FDF4;
+    }
+
+    .myth-statement {
+      font-size: 0.96rem;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 9px;
+      line-height: 1.55;
+    }
+
+    .myth-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .myth-btn {
+      padding: 8px 18px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface-soft);
+      color: var(--ink);
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 0.16s, border-color 0.16s;
+    }
+
+    .myth-btn:hover:not(:disabled) {
+      border-color: var(--accent-teal);
+      background: #ECFDF5;
+    }
+
+    .myth-btn.active-correct {
+      background: var(--accent-green);
+      border-color: var(--accent-green);
+      color: #FFF;
+    }
+
+    .myth-explain {
+      margin-top: 8px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #14532D;
+      line-height: 1.55;
+    }
+
+    /* Reward Digit Reveal Box */
+    .digit-reward-box {
+      text-align: center;
+      padding: 20px 16px;
+      background: linear-gradient(160deg, #ECFDF5 0%, #D1FAE5 100%);
+      border: 2px solid #34D399;
+      border-radius: 18px;
+      animation: modal-pop 0.3s var(--ease-out);
+    }
+
+    .digit-big {
+      width: 80px;
+      height: 80px;
+      margin: 10px auto 12px;
+      border-radius: 20px;
+      background: var(--accent-teal);
+      color: #FFFFFF;
+      font-size: 2.7rem;
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 12px 26px rgba(15, 118, 110, 0.35);
+    }
+
+    .digit-reward-title {
+      font-size: 1.18rem;
+      font-weight: 900;
+      color: #065F46;
+    }
+
+    .digit-reward-cue {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #064E3B;
+      margin-bottom: 16px;
+      line-height: 1.65;
+    }
+
+    /* Combination Safe Modal (5 Dials) */
+    .safe-panel {
+      background: linear-gradient(180deg, #2D353C 0%, #1E2429 100%);
+      border: 3px solid #4B5563;
+      border-radius: 20px;
+      padding: 22px 18px;
+      color: #F9FAFB;
+      text-align: center;
+      margin-bottom: 16px;
+      box-shadow: inset 0 2px 12px rgba(255,255,255,0.08);
+    }
+
+    .dials-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 18px 0 20px;
+      direction: ltr;
+      flex-wrap: wrap;
+    }
+
+    .dial-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .dial-label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #CBD5E1;
+      direction: rtl;
+    }
+
+    .dial-btn {
+      width: 50px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1.5px solid #64748B;
+      background: #334155;
+      color: #FFFFFF;
+      font-size: 1.25rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: background-color 0.14s, transform 0.12s;
+    }
+
+    .dial-btn:hover {
+      background: #475569;
+    }
+
+    .dial-btn:active {
+      transform: scale(0.95);
+    }
+
+    .dial-window {
+      width: 58px;
+      height: 68px;
+      border-radius: 12px;
+      background: #0F172A;
+      border: 2.5px solid #94A3B8;
+      color: #34D399;
+      font-size: 2.2rem;
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 6px 14px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Celebration & Summary Modal */
+    .victory-banner {
+      background: linear-gradient(135deg, #0F766E 0%, #115E59 100%);
+      color: #FFFFFF;
+      border-radius: 18px;
+      padding: 20px 22px;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .victory-headline {
+      font-size: clamp(1.18rem, 2.1vw, 1.52rem);
+      font-weight: 900;
+      line-height: 1.6;
+      margin-bottom: 8px;
+      text-wrap: balance;
+    }
+
+    .victory-meta {
+      font-size: 0.9rem;
+      color: #CCFBF1;
+      font-weight: 700;
+    }
+
+    .safe-open-stage {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .safe-door-animated {
+      transform-origin: 90px 110px;
+      animation: swing-safe-open 1.1s var(--ease-out) forwards;
+    }
+
+    @keyframes swing-safe-open {
+      0% { transform: scaleX(1); }
+      100% { transform: scaleX(0.18) skewY(-8deg); }
+    }
+
+    .nitro-reveal-pop {
+      animation: bottle-pop 0.7s 0.45s var(--ease-out) both;
+      transform-origin: 185px 115px;
+    }
+
+    @keyframes bottle-pop {
+      0% { opacity: 0; transform: scale(0.6) translateY(12px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Summary Card */
+    .roshetta-box {
+      background: #FFFDF9;
+      border: 2px solid #D5C8B5;
+      border-radius: 18px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .roshetta-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 11px;
+      margin-bottom: 14px;
+      border-bottom: 2px dashed #D5C8B5;
+      flex-wrap: wrap;
+    }
+
+    .roshetta-title {
+      font-size: 1.24rem;
+      font-weight: 900;
+      color: var(--accent-teal-dark);
+    }
+
+    .roshetta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 13px;
+    }
+
+    .roshetta-sec {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .roshetta-sec h4 {
+      font-size: 0.94rem;
+      font-weight: 800;
+      color: var(--accent-teal-dark);
+      margin-bottom: 6px;
+    }
+
+    .roshetta-sec.red-sec h4 {
+      color: var(--accent-red);
+    }
+
+    .roshetta-sec ul {
+      padding-right: 18px;
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .roshetta-sec li {
+      margin-bottom: 4px;
+    }
+
+    .victory-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Confetti Canvas */
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 150;
+    }
+
+    /* =====================================================================
+       MOBILE-FIRST & RESPONSIVE OPTIMIZATIONS
+       ===================================================================== */
+    @keyframes sheet-up {
+      from { opacity: 0; transform: translateY(36px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 960px) {
+      .hud {
+        padding: 8px 12px;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .hud-title { font-size: 0.95rem; }
+      .hud-player { max-width: 110px; font-size: 0.78rem; }
+      .ecg-wrap { width: 62px; }
+      .timer-readout { font-size: 1.08rem; min-width: 50px; }
+      .bpm-label { display: none; }
+      .code-label { display: none; }
+      .storage-arena, .step-bank, .drawer-grid, .roshetta-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      /* Compact 2-Row Mobile HUD (stays under 12% of screen height) */
+      .hud {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        align-items: center;
+        row-gap: 6px;
+        column-gap: 6px;
+        padding: calc(env(safe-area-inset-top, 0px) + 7px) 10px 8px;
+      }
+
+      .hud-brand {
+        grid-column: 1 / 11;
+        grid-row: 1;
+        gap: 7px;
+        min-width: 0;
+      }
+
+      .hud-logo-mark {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+      }
+
+      .hud-logo-mark svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .hud-title-group {
+        gap: 5px;
+        min-width: 0;
+        flex: 1;
+      }
+
+      .hud-title {
+        font-size: 0.84rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .hud-player {
+        font-size: 0.74rem;
+        max-width: 78px;
+        flex-shrink: 0;
+      }
+
+      .hud-actions {
+        display: contents;
+      }
+
+      .sound-btn {
+        grid-column: 11 / 13;
+        grid-row: 1;
+        width: 38px;
+        height: 38px;
+        justify-self: end;
+      }
+
+      .hud-monitor {
+        grid-column: 1 / 6;
+        grid-row: 2;
+        justify-self: start;
+        padding: 4px 7px;
+        gap: 5px;
+        border-radius: 9px;
+      }
+
+      .ecg-wrap {
+        width: 40px;
+        height: 22px;
+      }
+
+      .ecg-svg {
+        height: 22px;
+      }
+
+      .timer-readout {
+        font-size: 0.98rem;
+        min-width: 44px;
+      }
+
+      .code-tracker {
+        grid-column: 6 / 13;
+        grid-row: 2;
+        justify-self: end;
+        padding: 4px 6px;
+        border-radius: 9px;
+      }
+
+      .code-slots {
+        gap: 3px;
+      }
+
+      .code-slot {
+        width: 22px;
+        height: 24px;
+        font-size: 0.84rem;
+        border-radius: 5px;
+      }
+
+      .code-dash {
+        font-size: 0.72rem;
+      }
+
+      /* Mobile Room Stage: Big Panoramic Swipeable Room + Clean Hint Bar */
+      .stage-container {
+        justify-content: center;
+        padding: 10px 10px 6px;
+        gap: 10px;
+      }
+
+      .room-frame {
+        border-radius: 16px;
+        border-width: 3px;
+        box-shadow: 0 12px 30px rgba(38, 30, 26, 0.2);
+      }
+
+      .room-scroll {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        touch-action: pan-x pan-y;
+      }
+
+      .room-scroll::-webkit-scrollbar {
+        display: none;
+      }
+
+      .room-svg {
+        height: clamp(350px, 58dvh, 520px);
+        width: auto;
+        min-width: 700px;
+        max-width: none;
+      }
+
+      .room-swipe-hint {
+        display: block;
+      }
+
+      .room-footer-bar {
+        margin-top: 2px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 0;
+      }
+
+      .mission-hint {
+        font-size: 0.88rem;
+        line-height: 1.5;
+        text-align: center;
+        justify-content: center;
+        background: rgba(255, 253, 249, 0.88);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 14px;
+      }
+
+      .app-footer {
+        font-size: 0.84rem;
+        padding: 8px 12px calc(env(safe-area-inset-bottom, 0px) + 12px);
+      }
+
+      /* Mobile Penalty Toast */
+      .penalty-toast {
+        top: calc(env(safe-area-inset-top, 0px) + 92px);
+        max-width: calc(100vw - 24px);
+        white-space: normal;
+        text-align: center;
+        font-size: 0.88rem;
+        padding: 9px 16px;
+        line-height: 1.4;
+      }
+
+      /* Native Mobile Bottom-Sheet Modals */
+      .modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+        overflow-y: hidden;
+      }
+
+      .modal-card,
+      .modal-card.wide {
+        max-width: 100% !important;
+        width: 100%;
+        max-height: 92dvh;
+        border-radius: 24px 24px 0 0;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        animation: sheet-up 0.25s var(--ease-out);
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .modal-header {
+        padding: 20px 16px 12px;
+        border-radius: 24px 24px 0 0;
+      }
+
+      .modal-header::before {
+        content: "";
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 42px;
+        height: 4px;
+        border-radius: 99px;
+        background: #D5C8B5;
+      }
+
+      .modal-kicker {
+        font-size: 0.76rem;
+      }
+
+      .modal-title {
+        font-size: 1.1rem;
+      }
+
+      .modal-close {
+        width: 44px;
+        height: 44px;
+        font-size: 1.35rem;
+      }
+
+      .modal-body {
+        padding: 14px 16px calc(env(safe-area-inset-bottom, 0px) + 22px);
+      }
+
+      .story-lead {
+        font-size: 0.94rem;
+        line-height: 1.65;
+        margin-bottom: 12px;
+      }
+
+      .instruction-box {
+        font-size: 0.88rem;
+        padding: 11px 13px;
+        margin-bottom: 12px;
+      }
+
+      .section-step-title {
+        font-size: 0.98rem;
+      }
+
+      /* Start Screen Fits Cleanly on Mobile Above the Fold */
+      .start-hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .start-portrait {
+        width: 108px;
+        padding: 6px;
+        margin: 0 auto;
+        border-radius: 14px;
+      }
+
+      .start-portrait svg {
+        width: 90px;
+        height: 84px;
+      }
+
+      .rules-strip {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        margin-bottom: 14px;
+      }
+
+      .rule-item {
+        padding: 9px 6px;
+        border-radius: 10px;
+      }
+
+      .rule-item-val {
+        font-size: 0.96rem;
+      }
+
+      .rule-item-lbl {
+        font-size: 0.71rem;
+        line-height: 1.3;
+      }
+
+      .input-row {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .name-input {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        font-size: 16px;
+      }
+
+      /* Full-Width Thumb-Friendly Modal Buttons & Touch Targets */
+      .modal-body .btn-primary,
+      .modal-body .btn-secondary {
+        width: 100%;
+        min-height: 48px;
+        font-size: 0.95rem;
+        padding: 12px 16px;
+      }
+
+      .bottle-controls {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .storage-checklist {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        font-size: 0.82rem;
+        margin-bottom: 12px;
+      }
+
+      .storage-zone {
+        padding: 13px 12px;
+        gap: 8px;
+      }
+
+      .nitro-pill-btn {
+        width: 54px;
+        height: 54px;
+        font-size: 0.76rem;
+      }
+
+      .option-btn,
+      .step-card-btn,
+      .drawer-item {
+        min-height: 48px;
+        padding: 12px 13px;
+        font-size: 0.89rem;
+      }
+
+      .slot-remove-btn {
+        min-height: 36px;
+        padding: 6px 11px;
+      }
+
+      .myth-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .myth-btn {
+        min-height: 46px;
+        padding: 10px 12px;
+        width: 100%;
+      }
+
+      /* 5 Dials Stay in ONE Clean Horizontal Row on Phones */
+      .safe-panel {
+        padding: 16px 10px;
+        border-radius: 16px;
+      }
+
+      .dials-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+        margin: 14px 0 16px;
+      }
+
+      .dial-unit {
+        gap: 5px;
+      }
+
+      .dial-label {
+        font-size: 0.68rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+
+      .dial-btn {
+        width: 100%;
+        height: 42px;
+        font-size: 1.2rem;
+        border-radius: 9px;
+      }
+
+      .dial-window {
+        width: 100%;
+        height: 54px;
+        font-size: 1.75rem;
+        border-radius: 10px;
+      }
+
+      /* Victory Modal Compact Polish */
+      .safe-open-stage svg {
+        max-width: 240px;
+        height: auto;
+      }
+
+      .victory-banner {
+        padding: 16px 14px;
+      }
+
+      .roshetta-box {
+        padding: 14px 12px;
+      }
+
+      .roshetta-title {
+        font-size: 1.06rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+  <div id="penaltyFlash" class="penalty-flash" aria-hidden="true"></div>
+  <div id="penaltyToast" class="penalty-toast" role="alert">خطأ! خصم 20 ثانية من الوقت</div>
+
+  <div id="appShell" class="app-shell">
+    <!-- Top HUD -->
+    <header class="hud" aria-label="شريط معلومات اللعبة">
+      <div class="hud-brand">
+        <div class="hud-logo-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 21s-7-4.5-9.2-8.7C1.1 9 2.9 5.5 6.4 5.5c2 0 3.4 1.1 4.1 2.2.7-1.1 2.1-2.2 4.1-2.2 3.5 0 5.3 3.5 3.6 6.8C19 16.5 12 21 12 21z" fill="#FFFFFF"/>
+            <path d="M8.5 12.2h2l1.2-2.6 1.5 4.8 1.2-2.2h1.6" stroke="#DC2626" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="hud-title-group">
+          <span class="hud-title">Nitroglycerin Escape Room: أنقذ عم سعيد!</span>
+          <span class="hud-sep" aria-hidden="true">·</span>
+          <span id="hudPlayerName" class="hud-player">بطل الطوارئ</span>
+        </div>
+      </div>
+
+      <!-- Countdown & Animated ECG -->
+      <div id="hudMonitor" class="hud-monitor" aria-live="off">
+        <div class="ecg-wrap" aria-hidden="true">
+          <svg id="ecgSvg" class="ecg-svg" viewBox="0 0 224 30" fill="none">
+            <path id="ecgPath"
+              d="M0 17 L18 17 L23 14 L28 17 L34 17 L38 22 L43 4 L48 26 L53 17 L61 17 L66 12 L72 17 L112 17 L130 17 L135 14 L140 17 L146 17 L150 22 L155 4 L160 26 L165 17 L173 17 L178 12 L184 17 L224 17"
+              stroke="#34D399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span id="timerDisplay" class="timer-readout tabular-nums">05:00</span>
+        <span id="bpmDisplay" class="bpm-label tabular-nums">76 BPM</span>
+      </div>
+
+      <!-- 5-Digit Code Tracker & Sound Toggle -->
+      <div class="hud-actions">
+        <div class="code-tracker" aria-label="الكود السري للخزنة">
+          <span class="code-label">الكود</span>
+          <div class="code-slots">
+            <span id="codeSlot0" class="code-slot tabular-nums">_</span>
+            <span class="code-dash">-</span>
+            <span id="codeSlot1" class="code-slot tabular-nums">_</span>
+            <span class="code-dash">-</span>
+            <span id="codeSlot2" class="code-slot tabular-nums">_</span>
+            <span class="code-dash">-</span>
+            <span id="codeSlot3" class="code-slot tabular-nums">_</span>
+            <span class="code-dash">-</span>
+            <span id="codeSlot4" class="code-slot tabular-nums">_</span>
+          </div>
+        </div>
+
+        <button id="soundToggleBtn" class="sound-btn" type="button" aria-label="تشغيل أو كتم الصوت" title="تشغيل / كتم الصوت">
+          <svg id="soundOnIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg id="soundOffIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Interactive Room -->
+    <main class="stage-container">
+      <div class="room-frame">
+        <div id="roomScroll" class="room-scroll">
+        <svg class="room-svg" viewBox="0 0 1200 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="غرفة معيشة مصرية دافئة لعم سعيد تحتوي على ست نقاط تفاعلية">
+          <defs>
+            <linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FDF6E7"/>
+              <stop offset="100%" stop-color="#F2E2C4"/>
+            </linearGradient>
+            <linearGradient id="floorGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#DFC49E"/>
+              <stop offset="100%" stop-color="#C8A579"/>
+            </linearGradient>
+            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#7DD3FC"/>
+              <stop offset="100%" stop-color="#FEF3C7"/>
+            </linearGradient>
+            <linearGradient id="sunBeam" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#FDE047" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#FDE047" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="safeMetal" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#475569"/>
+              <stop offset="100%" stop-color="#1E293B"/>
+            </linearGradient>
+            <filter id="softShadow" x="-10%" y="-10%" width="120%" height="125%">
+              <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#2C221E" flood-opacity="0.18"/>
+            </filter>
+          </defs>
+
+          <!-- Background Wall & Wainscoting -->
+          <rect x="0" y="0" width="1200" height="430" fill="url(#wallGrad)"/>
+          <rect x="0" y="414" width="1200" height="18" fill="#B68B5A" stroke="#2C221E" stroke-width="2.5"/>
+          <rect x="0" y="432" width="1200" height="248" fill="url(#floorGrad)"/>
+
+          <!-- Subtle Floor Tile Lines -->
+          <g stroke="#B89468" stroke-width="1.5" opacity="0.55">
+            <line x1="0" y1="490" x2="1200" y2="490"/>
+            <line x1="0" y1="556" x2="1200" y2="556"/>
+            <line x1="0" y1="628" x2="1200" y2="628"/>
+            <line x1="200" y1="432" x2="120" y2="680"/>
+            <line x1="420" y1="432" x2="380" y2="680"/>
+            <line x1="640" y1="432" x2="640" y2="680"/>
+            <line x1="860" y1="432" x2="900" y2="680"/>
+            <line x1="1060" y1="432" x2="1140" y2="680"/>
+          </g>
+
+          <!-- Cozy Egyptian Kilim Carpet -->
+          <g filter="url(#softShadow)">
+            <polygon points="330,492 865,492 945,642 250,642" fill="#B43E2D" stroke="#2C221E" stroke-width="3"/>
+            <polygon points="355,504 840,504 906,628 290,628" fill="#E89D3C" stroke="#2C221E" stroke-width="2"/>
+            <polygon points="382,516 813,516 868,616 328,616" fill="#1F6F68" stroke="#2C221E" stroke-width="2"/>
+            <polygon points="598,530 662,562 598,594 534,562" fill="#FDE68A" stroke="#2C221E" stroke-width="2"/>
+            <polygon points="468,542 503,562 468,582 433,562" fill="#FDF6E7" stroke="#2C221E" stroke-width="1.8"/>
+            <polygon points="728,542 763,562 728,582 693,562" fill="#FDF6E7" stroke="#2C221E" stroke-width="1.8"/>
+          </g>
+
+          <!-- Warm Pendant Lamp -->
+          <g>
+            <line x1="600" y1="0" x2="600" y2="54" stroke="#2C221E" stroke-width="3"/>
+            <path d="M558 88 C558 56 642 56 642 88 Z" fill="#D97706" stroke="#2C221E" stroke-width="3"/>
+            <ellipse cx="600" cy="88" rx="42" ry="8" fill="#FEF08A" stroke="#2C221E" stroke-width="2.5"/>
+            <circle cx="600" cy="92" r="9" fill="#FFFFFF" opacity="0.85"/>
+          </g>
+
+          <!-- Wall Clock (Clean Home Decor) -->
+          <g>
+            <circle cx="820" cy="112" r="30" fill="#FFFDF9" stroke="#7C4A22" stroke-width="5.5"/>
+            <circle cx="820" cy="112" r="30" fill="none" stroke="#2C221E" stroke-width="2.4"/>
+            <line x1="820" y1="112" x2="820" y2="94" stroke="#2C221E" stroke-width="2.8" stroke-linecap="round"/>
+            <line x1="820" y1="112" x2="834" y2="119" stroke="#DC2626" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="820" cy="112" r="3.5" fill="#2C221E"/>
+          </g>
+
+          <!-- Sunny Balcony Window (Far Right) -->
+          <g>
+            <rect x="910" y="76" width="222" height="232" rx="8" fill="url(#skyGrad)" stroke="#7C4A22" stroke-width="9"/>
+            <rect x="910" y="76" width="222" height="232" rx="8" fill="none" stroke="#2C221E" stroke-width="3"/>
+            <circle cx="1072" cy="130" r="28" fill="#FDE047" stroke="#F59E0B" stroke-width="3"/>
+            <path d="M915 302 L915 252 L955 252 L955 232 L998 232 L998 262 L1045 262 L1045 238 L1090 238 L1090 256 L1127 256 L1127 302 Z" fill="#D9A875" opacity="0.65"/>
+            <line x1="1021" y1="76" x2="1021" y2="308" stroke="#7C4A22" stroke-width="6.5"/>
+            <line x1="910" y1="192" x2="1132" y2="192" stroke="#7C4A22" stroke-width="6.5"/>
+            <!-- Curtains -->
+            <path d="M892 68 L954 68 C942 162 936 244 948 318 L892 318 Z" fill="#C85A32" stroke="#2C221E" stroke-width="2.6"/>
+            <path d="M1150 68 L1088 68 C1100 162 1106 244 1094 318 L1150 318 Z" fill="#C85A32" stroke="#2C221E" stroke-width="2.6"/>
+            <rect x="882" y="61" width="278" height="11" rx="5.5" fill="#5C381C" stroke="#2C221E" stroke-width="2.5"/>
+            <polygon points="932,302 1120,104 1152,425 896,425" fill="url(#sunBeam)" pointer-events="none"/>
+          </g>
+
+          <!-- ============================================================
+               HOTSPOT 1: ترابيزة الشباك (Window Table - Storage & What is NTG)
+               ============================================================ -->
+          <g id="hotspot1" class="hotspot" tabindex="0" role="button" aria-label="ترابيزة الشباك: لغز التخزين وفهم النيتروجليسرين">
+            <ellipse class="hotspot-glow" cx="1044" cy="442" rx="116" ry="82" fill="#F59E0B" opacity="0.35"/>
+
+            <!-- Wooden Side Table -->
+            <g filter="url(#softShadow)">
+              <rect x="948" y="424" width="192" height="20" rx="6" fill="#A46A39" stroke="#2C221E" stroke-width="3"/>
+              <rect x="964" y="444" width="15" height="84" rx="4" fill="#7D4C25" stroke="#2C221E" stroke-width="2.8"/>
+              <rect x="1110" y="444" width="15" height="84" rx="4" fill="#7D4C25" stroke="#2C221E" stroke-width="2.8"/>
+              <rect x="976" y="498" width="138" height="11" rx="4" fill="#8C562B" stroke="#2C221E" stroke-width="2.4"/>
+            </g>
+
+            <!-- Clear Plastic Pillbox in Sun -->
+            <g id="roomSunBox">
+              <rect x="974" y="392" width="64" height="32" rx="7" fill="#E0F2FE" fill-opacity="0.8" stroke="#0284C7" stroke-width="2.5"/>
+              <circle cx="992" cy="411" r="5.5" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5"/>
+              <circle cx="1006" cy="412" r="5.5" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5"/>
+              <circle cx="1020" cy="410" r="5.5" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5"/>
+              <path d="M988 383 Q992 376 988 370 M1006 381 Q1010 374 1006 368 M1024 383 Q1028 376 1024 370" stroke="#EA580C" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+            </g>
+
+            <!-- Dark Amber Glass Bottle -->
+            <g>
+              <rect x="1062" y="376" width="38" height="48" rx="7" fill="#78350F" stroke="#2C221E" stroke-width="2.6"/>
+              <rect x="1068" y="364" width="26" height="12" rx="3" fill="#F8FAFC" stroke="#2C221E" stroke-width="2.4"/>
+              <rect x="1066" y="388" width="30" height="21" rx="3" fill="#FEF3C7"/>
+              <text x="1081" y="402" text-anchor="middle" font-size="9.5" font-weight="900" fill="#78350F">NTG</text>
+            </g>
+
+            <!-- Floating Label Tag -->
+            <g class="hotspot-tag" filter="url(#softShadow)">
+              <rect id="tagBg1" x="954" y="320" width="180" height="36" rx="11" fill="#FFFDF9" stroke="#D97706" stroke-width="2.4"/>
+              <text id="tagText1" x="1044" y="343" text-anchor="middle" font-size="14" font-weight="800" fill="#261E1A">١. ترابيزة الشباك</text>
+            </g>
+          </g>
+
+          <!-- ============================================================
+               HOTSPOT 2: عم سعيد والجرعة (Uncle Saeed - How & When to Take)
+               ============================================================ -->
+          <g id="hotspot2" class="hotspot" tabindex="0" role="button" aria-label="عم سعيد والجرعة: لغز طريقة وميعاد أخذ النيتروجليسرين">
+            <ellipse class="hotspot-glow" cx="602" cy="392" rx="135" ry="125" fill="#14B8A6" opacity="0.28"/>
+
+            <!-- Cozy Egyptian Armchair -->
+            <g filter="url(#softShadow)">
+              <rect x="502" y="282" width="200" height="168" rx="34" fill="#0F766E" stroke="#2C221E" stroke-width="3"/>
+              <rect x="518" y="298" width="168" height="122" rx="24" fill="#148F84" stroke="#2C221E" stroke-width="2"/>
+              <rect x="515" y="486" width="17" height="34" rx="4" fill="#6D411E" stroke="#2C221E" stroke-width="2.6"/>
+              <rect x="672" y="486" width="17" height="34" rx="4" fill="#6D411E" stroke="#2C221E" stroke-width="2.6"/>
+              <rect x="502" y="432" width="200" height="58" rx="18" fill="#0D645D" stroke="#2C221E" stroke-width="3"/>
+              <rect x="478" y="384" width="42" height="106" rx="16" fill="#115E59" stroke="#2C221E" stroke-width="3"/>
+              <rect x="684" y="384" width="42" height="106" rx="16" fill="#115E59" stroke="#2C221E" stroke-width="3"/>
+            </g>
+
+            <!-- Uncle Saeed Character -->
+            <g class="saeed-breath">
+              <rect x="558" y="460" width="32" height="58" rx="11" fill="#475569" stroke="#2C221E" stroke-width="2.6"/>
+              <rect x="614" y="460" width="32" height="58" rx="11" fill="#475569" stroke="#2C221E" stroke-width="2.6"/>
+              <ellipse cx="571" cy="522" rx="22" ry="10" fill="#7C4A22" stroke="#2C221E" stroke-width="2.5"/>
+              <ellipse cx="633" cy="522" rx="22" ry="10" fill="#7C4A22" stroke="#2C221E" stroke-width="2.5"/>
+
+              <!-- Torso -->
+              <path d="M538 374 C538 340 666 340 666 374 L672 462 L532 462 Z" fill="#FDE68A" stroke="#2C221E" stroke-width="2.8"/>
+              <path d="M548 354 L585 354 L585 462 L540 462 Z" fill="#8C5A32" stroke="#2C221E" stroke-width="2.4"/>
+              <path d="M619 354 L656 354 L664 462 L619 462 Z" fill="#8C5A32" stroke="#2C221E" stroke-width="2.4"/>
+
+              <!-- Left Arm -->
+              <path d="M540 368 C512 382 502 412 515 428 C524 438 542 432 550 418" fill="#FDE68A" stroke="#2C221E" stroke-width="2.8" stroke-linecap="round"/>
+              <circle cx="518" cy="425" r="12" fill="#E8B48A" stroke="#2C221E" stroke-width="2.4"/>
+
+              <!-- Right Arm holding chest -->
+              <path d="M662 370 C682 390 662 424 624 416" fill="none" stroke="#2C221E" stroke-width="20" stroke-linecap="round"/>
+              <path d="M662 370 C682 390 662 424 624 416" fill="none" stroke="#FDE68A" stroke-width="14.5" stroke-linecap="round"/>
+              <circle cx="615" cy="412" r="13" fill="#E8B48A" stroke="#2C221E" stroke-width="2.4"/>
+
+              <!-- Mild Chest Tightness Indicator -->
+              <g id="saeedChestAlert">
+                <circle cx="615" cy="399" r="16" fill="#EF4444" opacity="0.22"/>
+                <path d="M615 392 c-3-4-8-2-8 2.5 0 4 8 9 8 9 s8-5 8-9 c0-4.5-5-6.5-8-2.5z" fill="#DC2626" stroke="#FFF" stroke-width="1.3"/>
+              </g>
+
+              <!-- Head & Neck -->
+              <rect x="589" y="328" width="26" height="22" rx="7" fill="#DDA176" stroke="#2C221E" stroke-width="2.4"/>
+              <circle cx="602" cy="295" r="43" fill="#E8B48A" stroke="#2C221E" stroke-width="2.8"/>
+              <circle cx="559" cy="297" r="8" fill="#E8B48A" stroke="#2C221E" stroke-width="2.4"/>
+              <circle cx="645" cy="297" r="8" fill="#E8B48A" stroke="#2C221E" stroke-width="2.4"/>
+
+              <!-- Silver Hair -->
+              <path d="M560 288 C558 252 580 245 602 247 C624 245 646 252 644 288 C635 269 620 264 602 264 C584 264 569 269 560 288 Z" fill="#CBD5E1" stroke="#2C221E" stroke-width="2.5"/>
+
+              <!-- Glasses & Eyes -->
+              <circle cx="586" cy="293" r="11" fill="#FFFFFF" fill-opacity="0.55" stroke="#2C221E" stroke-width="2.3"/>
+              <circle cx="618" cy="293" r="11" fill="#FFFFFF" fill-opacity="0.55" stroke="#2C221E" stroke-width="2.3"/>
+              <line x1="597" y1="293" x2="607" y2="293" stroke="#2C221E" stroke-width="2.3"/>
+              <circle cx="586" cy="293" r="3.2" fill="#2C221E"/>
+              <circle cx="618" cy="293" r="3.2" fill="#2C221E"/>
+              <path d="M576 280 Q586 276 594 281" fill="none" stroke="#64748B" stroke-width="2.8" stroke-linecap="round"/>
+              <path d="M610 281 Q618 276 628 280" fill="none" stroke="#64748B" stroke-width="2.8" stroke-linecap="round"/>
+
+              <!-- Silver Mustache -->
+              <path d="M582 316 Q593 306 602 313 Q611 306 622 316 Q611 321 602 318 Q593 321 582 316 Z" fill="#E2E8F0" stroke="#2C221E" stroke-width="2"/>
+
+              <!-- Mouth -->
+              <path id="saeedMouth" d="M592 325 Q602 320 612 325" fill="none" stroke="#2C221E" stroke-width="2.5" stroke-linecap="round"/>
+            </g>
+
+            <!-- Speech Bubble -->
+            <g filter="url(#softShadow)">
+              <rect x="515" y="180" width="290" height="42" rx="13" fill="#FFFFFF" stroke="#2C221E" stroke-width="2.4"/>
+              <polygon points="595,222 611,222 603,235" fill="#FFFFFF" stroke="#2C221E" stroke-width="2.4"/>
+              <line x1="596" y1="222" x2="610" y2="222" stroke="#FFFFFF" stroke-width="3.5"/>
+              <text id="saeedSpeech" x="660" y="206" text-anchor="middle" font-size="13" font-weight="800" fill="#261E1A">حاسس بضيق بسيط في صدري.. ساعدني!</text>
+            </g>
+
+            <!-- Floating Label Tag -->
+            <g class="hotspot-tag" filter="url(#softShadow)">
+              <rect id="tagBg2" x="510" y="542" width="184" height="36" rx="11" fill="#FFFDF9" stroke="#0F766E" stroke-width="2.4"/>
+              <text id="tagText2" x="602" y="565" text-anchor="middle" font-size="14" font-weight="800" fill="#261E1A">٢. عم سعيد والجرعة</text>
+            </g>
+          </g>
+
+          <!-- ============================================================
+               HOTSPOT 3: تليفون الطوارئ 123 (NEW! Red-Flag Signs Board & Wall Phone)
+               ============================================================ -->
+          <g id="hotspot3" class="hotspot" tabindex="0" role="button" aria-label="تليفون الطوارئ 123: لغز علامات الخطر ومتى نتصل بالإسعاف">
+            <ellipse class="hotspot-glow" cx="394" cy="236" rx="92" ry="82" fill="#EF4444" opacity="0.28"/>
+
+            <g filter="url(#softShadow)">
+              <!-- Wall Emergency Note Board -->
+              <rect x="330" y="176" width="68" height="96" rx="8" fill="#FEF2F2" stroke="#2C221E" stroke-width="2.6"/>
+              <rect x="348" y="168" width="32" height="12" rx="4" fill="#DC2626" stroke="#2C221E" stroke-width="2"/>
+              <text x="364" y="204" text-anchor="middle" font-size="15" font-weight="900" fill="#DC2626">123</text>
+              <line x1="342" y1="218" x2="386" y2="218" stroke="#DC2626" stroke-width="2.4" stroke-linecap="round"/>
+              <line x1="342" y1="232" x2="384" y2="232" stroke="#64748B" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="342" y1="246" x2="380" y2="246" stroke="#64748B" stroke-width="2.2" stroke-linecap="round"/>
+              <line x1="342" y1="258" x2="372" y2="258" stroke="#64748B" stroke-width="2.2" stroke-linecap="round"/>
+
+              <!-- Classic Red Wall Telephone -->
+              <rect x="408" y="192" width="54" height="74" rx="10" fill="#DC2626" stroke="#2C221E" stroke-width="2.6"/>
+              <!-- Handset -->
+              <path d="M402 186 C402 174 468 174 468 186 L464 198 L452 198 L452 189 L418 189 L418 198 L406 198 Z" fill="#B91C1C" stroke="#2C221E" stroke-width="2.5"/>
+              <!-- Keypad -->
+              <rect x="418" y="210" width="34" height="36" rx="5" fill="#FEF2F2" stroke="#2C221E" stroke-width="2"/>
+              <circle cx="426" cy="219" r="2.6" fill="#2C221E"/>
+              <circle cx="435" cy="219" r="2.6" fill="#2C221E"/>
+              <circle cx="444" cy="219" r="2.6" fill="#2C221E"/>
+              <circle cx="426" cy="228" r="2.6" fill="#2C221E"/>
+              <circle cx="435" cy="228" r="2.6" fill="#2C221E"/>
+              <circle cx="444" cy="228" r="2.6" fill="#2C221E"/>
+              <circle cx="426" cy="237" r="2.6" fill="#2C221E"/>
+              <circle cx="435" cy="237" r="2.6" fill="#DC2626"/>
+              <circle cx="444" cy="237" r="2.6" fill="#2C221E"/>
+              <!-- Cord -->
+              <path d="M412 266 Q400 282 414 292 Q428 302 420 312" fill="none" stroke="#2C221E" stroke-width="3" stroke-linecap="round"/>
+            </g>
+
+            <!-- Floating Label Tag -->
+            <g class="hotspot-tag" filter="url(#softShadow)">
+              <rect id="tagBg3" x="304" y="114" width="184" height="36" rx="11" fill="#FFFDF9" stroke="#DC2626" stroke-width="2.4"/>
+              <text id="tagText3" x="396" y="137" text-anchor="middle" font-size="14" font-weight="800" fill="#261E1A">٣. تليفون الطوارئ 123</text>
+            </g>
+          </g>
+
+          <!-- ============================================================
+               HOTSPOT 4: درج الأدوية (Medicine Drawer - What to Avoid)
+               ============================================================ -->
+          <g id="hotspot4" class="hotspot" tabindex="0" role="button" aria-label="درج الأدوية: لغز الممنوعات والتداخلات الخطيرة">
+            <ellipse class="hotspot-glow" cx="215" cy="482" rx="126" ry="96" fill="#F59E0B" opacity="0.3"/>
+
+            <!-- Wooden Sideboard / Commode -->
+            <g filter="url(#softShadow)">
+              <rect x="108" y="408" width="214" height="148" rx="10" fill="#9A6234" stroke="#2C221E" stroke-width="3"/>
+              <rect x="98" y="398" width="234" height="18" rx="6" fill="#B67742" stroke="#2C221E" stroke-width="2.8"/>
+              <rect x="122" y="556" width="15" height="16" rx="3" fill="#6D411E" stroke="#2C221E" stroke-width="2.5"/>
+              <rect x="292" y="556" width="15" height="16" rx="3" fill="#6D411E" stroke="#2C221E" stroke-width="2.5"/>
+
+              <!-- Open Top Drawer -->
+              <rect x="124" y="430" width="182" height="46" rx="6" fill="#C48850" stroke="#2C221E" stroke-width="2.6"/>
+              <rect x="138" y="414" width="36" height="25" rx="4" fill="#3B82F6" stroke="#2C221E" stroke-width="2.2"/>
+              <rect x="182" y="416" width="40" height="23" rx="4" fill="#EF4444" stroke="#2C221E" stroke-width="2.2"/>
+              <rect x="230" y="412" width="34" height="27" rx="4" fill="#10B981" stroke="#2C221E" stroke-width="2.2"/>
+              <circle cx="215" cy="456" r="5.5" fill="#FDE68A" stroke="#2C221E" stroke-width="2"/>
+
+              <!-- Bottom Drawer -->
+              <rect x="126" y="490" width="178" height="48" rx="6" fill="#845026" stroke="#2C221E" stroke-width="2.5"/>
+              <circle cx="215" cy="514" r="5.5" fill="#FDE68A" stroke="#2C221E" stroke-width="2"/>
+
+              <!-- Potted Plant -->
+              <path d="M138 398 L144 368 L174 368 L180 398 Z" fill="#C85A32" stroke="#2C221E" stroke-width="2.4"/>
+              <path d="M159 368 C145 346 130 350 134 332 C148 335 155 344 159 360" fill="#15803D" stroke="#2C221E" stroke-width="2.1"/>
+              <path d="M159 368 C173 342 188 344 184 326 C170 332 163 344 159 360" fill="#16A34A" stroke="#2C221E" stroke-width="2.1"/>
+              <path d="M159 364 C154 336 164 320 159 312 C170 326 170 342 159 364" fill="#22C55E" stroke="#2C221E" stroke-width="2.1"/>
+
+              <!-- Cup of Mint Tea -->
+              <rect x="256" y="373" width="25" height="25" rx="4" fill="#F59E0B" fill-opacity="0.85" stroke="#2C221E" stroke-width="2.2"/>
+              <path d="M281 379 C289 379 289 392 281 392" fill="none" stroke="#2C221E" stroke-width="2.3"/>
+            </g>
+
+            <!-- Floating Label Tag -->
+            <g class="hotspot-tag" filter="url(#softShadow)">
+              <rect id="tagBg4" x="128" y="582" width="174" height="36" rx="11" fill="#FFFDF9" stroke="#D97706" stroke-width="2.4"/>
+              <text id="tagText4" x="215" y="605" text-anchor="middle" font-size="14" font-weight="800" fill="#261E1A">٤. درج الأدوية</text>
+            </g>
+          </g>
+
+          <!-- ============================================================
+               HOTSPOT 5: ترابيزة العادات والخرافات (NEW! Myths vs Facts & Lifestyle)
+               ============================================================ -->
+          <g id="hotspot5" class="hotspot" tabindex="0" role="button" aria-label="ترابيزة العادات والخرافات: لغز الخرافات والحقائق ونمط الحياة الصحي">
+            <ellipse class="hotspot-glow" cx="826" cy="566" rx="98" ry="62" fill="#10B981" opacity="0.3"/>
+
+            <!-- Low Egyptian Wooden Coffee Table -->
+            <g filter="url(#softShadow)">
+              <rect x="758" y="572" width="14" height="34" rx="4" fill="#7D4C25" stroke="#2C221E" stroke-width="2.6"/>
+              <rect x="880" y="572" width="14" height="34" rx="4" fill="#7D4C25" stroke="#2C221E" stroke-width="2.6"/>
+              <rect x="742" y="554" width="168" height="22" rx="9" fill="#B67742" stroke="#2C221E" stroke-width="2.8"/>
+
+              <!-- Healthy Fruit Bowl (Heart-Healthy Diet) -->
+              <path d="M760 554 C762 540 802 540 804 554 Z" fill="#0F766E" stroke="#2C221E" stroke-width="2.2"/>
+              <circle cx="774" cy="541" r="8.5" fill="#EF4444" stroke="#2C221E" stroke-width="2"/>
+              <circle cx="790" cy="542" r="8" fill="#22C55E" stroke="#2C221E" stroke-width="2"/>
+              <circle cx="782" cy="534" r="7.5" fill="#F59E0B" stroke="#2C221E" stroke-width="2"/>
+
+              <!-- Open Notebook (Myths vs Facts) -->
+              <rect x="816" y="534" width="44" height="22" rx="3" fill="#FFFDF9" stroke="#2C221E" stroke-width="2.2"/>
+              <line x1="838" y1="534" x2="838" y2="556" stroke="#2C221E" stroke-width="1.8"/>
+              <text x="827" y="549" text-anchor="middle" font-size="10" font-weight="900" fill="#15803D">✓</text>
+              <text x="849" y="549" text-anchor="middle" font-size="10" font-weight="900" fill="#DC2626">✕</text>
+
+              <!-- No-Smoking Emblem Sign -->
+              <circle cx="884" cy="541" r="13" fill="#FFFFFF" stroke="#DC2626" stroke-width="2.8"/>
+              <rect x="875" y="539" width="18" height="4.5" rx="1" fill="#64748B"/>
+              <line x1="875" y1="532" x2="893" y2="550" stroke="#DC2626" stroke-width="2.6"/>
+            </g>
+
+            <!-- Floating Label Tag -->
+            <g class="hotspot-tag" filter="url(#softShadow)">
+              <rect id="tagBg5" x="724" y="618" width="204" height="36" rx="11" fill="#FFFDF9" stroke="#0F766E" stroke-width="2.4"/>
+              <text id="tagText5" x="826" y="641" text-anchor="middle" font-size="13.8" font-weight="800" fill="#261E1A">٥. العادات والخرافات</text>
+            </g>
+          </g>
+
+          <!-- ============================================================
+               HOTSPOT 6: شنطة الطوارئ المقفولة (Locked Emergency Safe - 5 Digits)
+               ============================================================ -->
+          <g id="hotspot6" class="hotspot" tabindex="0" role="button" aria-label="شنطة الطوارئ المقفولة: أدخل الكود السري المكون من 5 أرقام">
+            <ellipse class="hotspot-glow" cx="164" cy="236" rx="102" ry="86" fill="#DC2626" opacity="0.32"/>
+
+            <g filter="url(#softShadow)">
+              <rect x="84" y="166" width="160" height="138" rx="16" fill="url(#safeMetal)" stroke="#0F172A" stroke-width="3.4"/>
+              <rect x="98" y="180" width="132" height="110" rx="10" fill="#334155" stroke="#94A3B8" stroke-width="2.2"/>
+
+              <!-- Medical Cross Emblem -->
+              <rect x="116" y="202" width="42" height="42" rx="8" fill="#FFFFFF" stroke="#0F172A" stroke-width="2"/>
+              <rect x="132" y="210" width="10" height="26" rx="2" fill="#DC2626"/>
+              <rect x="124" y="218" width="26" height="10" rx="2" fill="#DC2626"/>
+
+              <!-- Dial & Status LED -->
+              <circle cx="195" cy="234" r="20" fill="#1E293B" stroke="#CBD5E1" stroke-width="2.8"/>
+              <circle cx="195" cy="234" r="7" fill="#94A3B8"/>
+              <line x1="195" y1="218" x2="195" y2="225" stroke="#F59E0B" stroke-width="2.8" stroke-linecap="round"/>
+              <circle id="roomSafeLed" cx="212" cy="196" r="5.5" fill="#EF4444" stroke="#0F172A" stroke-width="1.5"/>
+
+              <rect x="118" y="262" width="92" height="16" rx="6" fill="#0F172A"/>
+              <text id="roomSafeCodeLabel" x="164" y="274" text-anchor="middle" font-size="10.2" font-weight="800" fill="#F87171">مقفولة · 5 أرقام</text>
+            </g>
+
+            <!-- Floating Label Tag -->
+            <g class="hotspot-tag" filter="url(#softShadow)">
+              <rect id="tagBg6" x="64" y="114" width="200" height="36" rx="11" fill="#FFFDF9" stroke="#DC2626" stroke-width="2.4"/>
+              <text id="tagText6" x="164" y="137" text-anchor="middle" font-size="13.8" font-weight="800" fill="#991B1B">٦. شنطة الطوارئ المقفولة</text>
+            </g>
+          </g>
+        </svg>
+        </div>
+        <div id="roomSwipeHint" class="room-swipe-hint" aria-hidden="true">↔ اسحب الغرفة يمين وشمال</div>
+      </div>
+
+      <!-- Mission Hint Below Stage -->
+      <div class="room-footer-bar">
+        <div id="missionHint" class="mission-hint">
+          <span>اضغط على الأماكن المنورة في الغرفة لحل الألغاز الـ 5 وفتح شنطة الطوارئ!</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Subtle Thin Credit Line at the Bottom -->
+    <footer class="app-footer">
+      نشاط مادة فارما 1 Lab A3
+    </footer>
+  </div>
+
+  <!-- ========================================================================
+       START SCREEN MODAL
+       ======================================================================== -->
+  <div id="startModal" class="modal-backdrop open" role="dialog" aria-modal="true" aria-labelledby="startModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-kicker">لعبة تفاعلية عن دواء النيتروجليسرين</span>
+          <h1 id="startModalTitle" class="modal-title">Nitroglycerin Escape Room: أنقذ عم سعيد!</h1>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="start-hero">
+          <div class="start-portrait" aria-hidden="true">
+            <svg width="154" height="144" viewBox="0 0 180 170">
+              <circle cx="90" cy="86" r="70" fill="#FEF3C7"/>
+              <path d="M40 162 C40 124 140 124 140 162 Z" fill="#0F766E" stroke="#2C221E" stroke-width="3"/>
+              <rect x="76" y="108" width="28" height="22" rx="8" fill="#DDA176" stroke="#2C221E" stroke-width="2.5"/>
+              <circle cx="90" cy="76" r="42" fill="#E8B48A" stroke="#2C221E" stroke-width="3"/>
+              <path d="M49 69 C48 34 68 28 90 30 C112 28 132 34 131 69 C122 52 108 46 90 46 C72 46 58 52 49 69 Z" fill="#CBD5E1" stroke="#2C221E" stroke-width="2.6"/>
+              <circle cx="75" cy="74" r="11" fill="#FFF" fill-opacity="0.6" stroke="#2C221E" stroke-width="2.4"/>
+              <circle cx="105" cy="74" r="11" fill="#FFF" fill-opacity="0.6" stroke="#2C221E" stroke-width="2.4"/>
+              <line x1="86" y1="74" x2="94" y2="74" stroke="#2C221E" stroke-width="2.4"/>
+              <circle cx="75" cy="74" r="3.2" fill="#2C221E"/>
+              <circle cx="105" cy="74" r="3.2" fill="#2C221E"/>
+              <path d="M70 96 Q80 87 90 94 Q100 87 110 96 Q100 101 90 98 Q80 101 70 96 Z" fill="#E2E8F0" stroke="#2C221E" stroke-width="2"/>
+              <path d="M80 106 Q90 112 100 106" fill="none" stroke="#2C221E" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <p class="story-lead">
+              <strong>عم سعيد</strong> قاعد في بيته وحاسس بضيق بسيط في صدره (ذبحة صدرية)، وعشان نساعده ونطمنه، قدامك <strong>5 دقائق</strong> تحل فيهم <strong>5 ألغاز أمان</strong> جوه الغرفة عشان تعرف الكود السري (5 أرقام) وتفتح <strong>شنطة الطوارئ</strong> اللي فيها علبة <strong>النيتروجليسرين</strong> وتعلّمه كل القواعد الصح!
+            </p>
+          </div>
+        </div>
+
+        <div class="rules-strip">
+          <div class="rule-item">
+            <div class="rule-item-val tabular-nums">05:00</div>
+            <div class="rule-item-lbl">الوقت المتاح لإنقاذ عم سعيد</div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-item-val">5 ألغاز = 5 أرقام</div>
+            <div class="rule-item-lbl">كل لغز يكشف رقم من الكود</div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-item-val danger tabular-nums">-20 ثانية</div>
+            <div class="rule-item-lbl">خصم عند كل محاولة خاطئة</div>
+          </div>
+        </div>
+
+        <form id="startForm" class="input-row">
+          <input id="playerNameInput" class="name-input" type="text" maxlength="32" placeholder="اكتب اسمك" autocomplete="off" />
+          <button class="btn-primary" type="submit">ابدأ اللعبة الآن</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       PUZZLE 1 MODAL: ترابيزة الشباك (التخزين + ما هو النيتروجليسرين + الجرعة الفائتة)
+       ======================================================================== -->
+  <div id="puzzle1Modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="p1Title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-kicker">اللغز ١ · ترابيزة الشباك</span>
+          <h2 id="p1Title" class="modal-title">التخزين الصحيح لحبوب النيتروجليسرين</h2>
+        </div>
+        <button class="modal-close" type="button" data-close="puzzle1Modal" aria-label="إغلاق">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- Stage 1A: Storage Task -->
+        <div id="p1StageA">
+          <div class="section-step-title">
+            <span class="step-num">١</span>
+            <span>انقل حبوب النيتروجليسرين لمكانها الآمن!</span>
+          </div>
+          <div class="instruction-box">
+            الحبوب محطوطة في <strong>علبة بلاستيك شفافة جنب الشباك في الشمس والحرارة</strong>! اضغط على كل حباية (أو اسحبها) عشان تنقلها إلى <strong>العلبة الأصلية الزجاجية الغامقة المحكمة الغلق</strong>، وبعدها <strong>أحكم غلق الغطاء</strong> واحفظها بعيداً عن الحرارة والرطوبة والضوء ومتناول الأطفال.
+          </div>
+
+          <div class="storage-checklist">
+            <span id="p1ChkPills">○ نقل الـ 3 حبوب للعلبة الأصلية الغامقة (0/3)</span>
+            <span id="p1ChkCap">○ إحكام غلق الغطاء</span>
+            <span id="p1ChkSafe">○ حفظها بعيداً عن الحرارة والرطوبة والضوء ومتناول الأطفال</span>
+          </div>
+
+          <div class="storage-arena">
+            <div class="storage-zone sunny">
+              <div class="zone-title">علبة بلاستيك شفافة في الشمس (خطأ!)</div>
+              <div class="zone-sub">الحرارة والضوء والرطوبة بيفسدوا فاعلية الحبوب</div>
+              <div id="sunPillTray" class="pill-tray"></div>
+            </div>
+
+            <div id="darkBottleZone" class="storage-zone shaded">
+              <div class="zone-title">العلبة الأصلية المحكمة الغلق</div>
+              <div id="bottleStatusSub" class="zone-sub">اسحب الحبوب هنا أو اضغط عليها</div>
+              <svg width="88" height="92" viewBox="0 0 88 92" aria-hidden="true">
+                <rect id="p1BottleCap" x="25" y="4" width="38" height="14" rx="4" fill="#F8FAFC" stroke="#2C221E" stroke-width="2.5" style="transition: transform 0.25s;"/>
+                <rect x="30" y="22" width="28" height="12" fill="#92400E" stroke="#2C221E" stroke-width="2.4"/>
+                <rect x="18" y="34" width="52" height="52" rx="10" fill="#78350F" stroke="#2C221E" stroke-width="2.8"/>
+                <rect x="24" y="46" width="40" height="28" rx="4" fill="#FEF3C7"/>
+                <text x="44" y="61" text-anchor="middle" font-size="11" font-weight="900" fill="#78350F">NTG</text>
+                <text id="p1BottleCountSvg" x="44" y="72" text-anchor="middle" font-size="9" font-weight="800" fill="#92400E">0 / 3</text>
+              </svg>
+              <div class="bottle-controls">
+                <button id="p1SealBtn" type="button" class="btn-secondary" disabled>أحكم غلق الغطاء</button>
+                <button id="p1ShelveBtn" type="button" class="btn-primary" disabled>احفظها بعيداً عن الحرارة والرطوبة والضوء ومتناول الأطفال</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="p1FeedbackA" class="feedback-msg"></div>
+        </div>
+
+        <!-- Stage 1B: Quick Knowledge Check (Exact Storage Rules) -->
+        <div id="p1StageB" style="display:none;">
+          <div class="section-step-title">
+            <span class="step-num">٢</span>
+            <span>سؤال سريع لتأكيد قواعد التخزين الصحيحة</span>
+          </div>
+
+          <div class="quiz-block">
+            <div class="quiz-q">إيه هي القاعدة الصحيحة 100% لتخزين حبوب النيتروجليسرين تحت اللسان؟</div>
+            <div class="option-list" id="p1Q1Options">
+              <button type="button" class="option-btn" data-q="1" data-correct="true">
+                <span class="option-check"></span>
+                <span>حفظ الحبوب في علبتها الأصلية المحكمة الغلق، وحمايتها من الحرارة والرطوبة والضوء، وإبعادها عن متناول الأطفال.</span>
+              </button>
+              <button type="button" class="option-btn" data-q="1" data-correct="false">
+                <span class="option-check"></span>
+                <span>نقل الحبوب لعلبة بلاستيك شفافة بجانب الشباك في الشمس عشان تبقى باينة وسهل الوصول ليها.</span>
+              </button>
+              <button type="button" class="option-btn" data-q="1" data-correct="false">
+                <span class="option-check"></span>
+                <span>الاحتفاظ بالعلبة مفتوحة في الحمام (مكان رطب) أو على ترابيزة قريبة من الأطفال وقت الطوارئ.</span>
+              </button>
+            </div>
+          </div>
+
+          <button id="p1SubmitQuizBtn" type="button" class="btn-primary">تأكيد الإجابة</button>
+          <div id="p1FeedbackB" class="feedback-msg"></div>
+        </div>
+
+        <!-- Stage 1C: Reward Digit 5 -->
+        <div id="p1Reward" class="digit-reward-box" style="display:none;">
+          <div class="digit-reward-title">ممتاز! أنقذت الحبوب وكشفت الرقم الأول</div>
+          <div class="digit-big tabular-nums">5</div>
+          <p class="digit-reward-cue">
+            الرقم الأول من الكود هو <strong>(5)</strong> — وتم حل لغز <strong>ترابيزة الشباك</strong> بنجاح!<br />
+            دايماً: حفظ الحبوب في علبتها الأصلية المحكمة الغلق بعيداً عن الحرارة والرطوبة والضوء ومتناول الأطفال.
+          </p>
+          <button type="button" class="btn-primary" data-close="puzzle1Modal">ارجع للغرفة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       PUZZLE 2 MODAL: عم سعيد والجرعة (طريقة وميعاد الاستخدام: الحبوب، البخاخ، قبل المجهود)
+       ======================================================================== -->
+  <div id="puzzle2Modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="p2Title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-kicker">اللغز ٢ · عم سعيد والجرعة</span>
+          <h2 id="p2Title" class="modal-title">إزاي وامتى عم سعيد ياخد النيتروجليسرين؟</h2>
+        </div>
+        <button class="modal-close" type="button" data-close="puzzle2Modal" aria-label="إغلاق">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- Stage 2A: Step Ordering -->
+        <div id="p2StageA">
+          <div class="section-step-title">
+            <span class="step-num">١</span>
+            <span>رتّب خطوات أخذ حباية تحت اللسان بالترتيب الصح</span>
+          </div>
+          <div class="instruction-box">
+            اضغط على الخطوات بالترتيب الصحيح من <strong>١ إلى ٤</strong> عشان تعلّم عم سعيد ياخد الدواء بأمان وقت ألم الصدر:
+          </div>
+
+          <div id="p2Slots" class="order-slots"></div>
+          <div id="p2Bank" class="step-bank"></div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button id="p2VerifyOrderBtn" type="button" class="btn-primary" disabled>تحقق من الترتيب</button>
+            <button id="p2ResetOrderBtn" type="button" class="btn-secondary">إعادة الترتيب</button>
+          </div>
+          <div id="p2FeedbackA" class="feedback-msg"></div>
+        </div>
+
+        <!-- Stage 2B: Mechanism, Spray & Preventive Use Questions -->
+        <div id="p2StageB" style="display:none;">
+          <div class="section-step-title">
+            <span class="step-num">٢</span>
+            <span>فهم الدواء، البخاخ تحت اللسان، والوقاية قبل المجهود</span>
+          </div>
+
+          <div class="quiz-block">
+            <div class="quiz-q">١. إيه هو دواء النيتروجليسرين وليه الطبيب وصفه لعم سعيد؟</div>
+            <div class="option-list" id="p2Q1Options">
+              <button type="button" class="option-btn" data-q="1" data-correct="true">
+                <span class="option-check"></span>
+                <span>دواء بيريّح ويوسّع الأوعية الدموية عشان الدم يوصل للقلب بسهولة ويقلل المجهود عليه؛ وبيُستخدم لتخفيف أو منع ألم الصدر (الذبحة الصدرية) الناتج عن قلة تدفق الدم للقلب.</span>
+              </button>
+              <button type="button" class="option-btn" data-q="1" data-correct="false">
+                <span class="option-check"></span>
+                <span>مسكن للألم بس ومالوش أي علاقة بتوسيع الأوعية الدموية أو تخفيف المجهود على القلب.</span>
+              </button>
+              <button type="button" class="option-btn" data-q="1" data-correct="false">
+                <span class="option-check"></span>
+                <span>مضاد حيوي بيعالج التهابات الصدر وضيق الشعب الهوائية.</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="quiz-block">
+            <div class="quiz-q">٢. لو عم سعيد بيستخدم بخاخ النيتروجليسرين (Sublingual spray)، يستخدمه إزاي؟</div>
+            <div class="option-list" id="p2Q2Options">
+              <button type="button" class="option-btn" data-q="2" data-correct="true">
+                <span class="option-check"></span>
+                <span>يبخ تحت اللسان حسب توجيهات الطبيب وهو قاعد عشان يتجنب الدوخة أو السقوط.</span>
+              </button>
+              <button type="button" class="option-btn" data-q="2" data-correct="false">
+                <span class="option-check"></span>
+                <span>يستنشقه من الأنف زي بخاخ الحساسية وهو واقف.</span>
+              </button>
+              <button type="button" class="option-btn" data-q="2" data-correct="false">
+                <span class="option-check"></span>
+                <span>يرشه على منطقة الصدر من بره عشان يسكن الألم.</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="quiz-block">
+            <div class="quiz-q">٣. لو الطبيب وصف النيتروجليسرين قبل نشاط بيسبب ذبحة صدرية (زي المجهود)، ياخده امتى؟</div>
+            <div class="option-list" id="p2Q3Options">
+              <button type="button" class="option-btn" data-q="3" data-correct="false">
+                <span class="option-check"></span>
+                <span>بعد ما يخلص النشاط بساعتين.</span>
+              </button>
+              <button type="button" class="option-btn" data-q="3" data-correct="true">
+                <span class="option-check"></span>
+                <span>قبل النشاط بوقت قصير حسب توجيهات الطبيب عشان يمنع حدوث الذبحة الصدرية.</span>
+              </button>
+              <button type="button" class="option-btn" data-q="3" data-correct="false">
+                <span class="option-check"></span>
+                <span>ممنوع تماماً استخدام النيتروجليسرين للوقاية قبل أي نشاط.</span>
+              </button>
+            </div>
+          </div>
+
+          <button id="p2SubmitQuizBtn" type="button" class="btn-primary">تأكيد الإجابات</button>
+          <div id="p2FeedbackB" class="feedback-msg"></div>
+        </div>
+
+        <!-- Stage 2C: Reward Digit 1 -->
+        <div id="p2Reward" class="digit-reward-box" style="display:none;">
+          <div class="digit-reward-title">هايل! كشفت الرقم الثاني من الكود</div>
+          <div class="digit-big tabular-nums">1</div>
+          <p class="digit-reward-cue">
+            الرقم الثاني هو <strong>(1)</strong> — النيتروجليسرين بيوسّع الأوعية الدموية ويقلل المجهود على القلب لتخفيف أو منع الذبحة الصدرية؛ الجلوس أولاً ثم حباية تذوب تحت اللسان (أو البخاخ تحت اللسان) حسب تعليمات الطبيب، ويمكن أخذه قبل المجهود بوقت قصير للوقاية!
+          </p>
+          <button type="button" class="btn-primary" data-close="puzzle2Modal">ارجع للغرفة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       PUZZLE 3 MODAL: تليفون الطوارئ 123 (علامات الخطر + قاعدة الانتظار 5 دقائق)
+       ======================================================================== -->
+  <div id="puzzle3Modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="p3Title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-kicker">اللغز ٣ · تليفون الطوارئ 123</span>
+          <h2 id="p3Title" class="modal-title">علامات الخطر: امتى نتصل بالطوارئ فوراً؟</h2>
+        </div>
+        <button class="modal-close" type="button" data-close="puzzle3Modal" aria-label="إغلاق">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- Stage 3A: Red Flag Triage -->
+        <div id="p3StageA">
+          <div class="section-step-title">
+            <span class="step-num">١</span>
+            <span>حدّد كل علامات الخطر (4 علامات) اللي تستدعي الطوارئ فوراً</span>
+          </div>
+          <div class="instruction-box">
+            اختر <strong>الـ 4 علامات الخطيرة</strong> اللي لازم معاها نطلب الإسعاف <strong>123</strong> أو مساعدة طبية عاجلة فوراً، وسيب الأعراض البسيطة الطبيعية:
+          </div>
+
+          <div id="p3RedFlagsList" class="option-list" style="margin-bottom:16px;">
+            <button type="button" class="option-btn" data-rf="true">
+              <span class="option-check"></span>
+              <span>استمرار ألم الصدر بعد أخذ أول جرعة والانتظار 5 دقائق.</span>
+            </button>
+            <button type="button" class="option-btn" data-rf="false">
+              <span class="option-check"></span>
+              <span>صداع خفيف مؤقت بعد ما ألم الصدر اختفى تماماً.</span>
+            </button>
+            <button type="button" class="option-btn" data-rf="true">
+              <span class="option-check"></span>
+              <span>حدوث إغماء أو دوخة شديدة جداً.</span>
+            </button>
+            <button type="button" class="option-btn" data-rf="true">
+              <span class="option-check"></span>
+              <span>ظهور ضيق شديد في التنفس.</span>
+            </button>
+            <button type="button" class="option-btn" data-rf="false">
+              <span class="option-check"></span>
+              <span>تحسّن ألم الصدر واختفاؤه تماماً خلال 3 دقائق بعد أول حباية.</span>
+            </button>
+            <button type="button" class="option-btn" data-rf="true">
+              <span class="option-check"></span>
+              <span>ألم الصدر بقى أشد من المعتاد أو متكرر أكتر أو شكله مختلف عن الطبيعي.</span>
+            </button>
+          </div>
+
+          <button id="p3VerifyRedFlagsBtn" type="button" class="btn-primary">تأكيد علامات الخطر</button>
+          <div id="p3FeedbackA" class="feedback-msg"></div>
+        </div>
+
+        <!-- Stage 3B: Waiting for Emergency Scenario -->
+        <div id="p3StageB" style="display:none;">
+          <div class="section-step-title">
+            <span class="step-num">٢</span>
+            <span>موقف طوارئ عملي!</span>
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-q">عم سعيد أخد أول حباية واستنى 5 دقائق والألم لسه مرحش.. إيه التصرف الصح 100%؟</div>
+            <div class="option-list" id="p3ScenarioOptions">
+              <button type="button" class="option-btn" data-correct="false">
+                <span class="option-check"></span>
+                <span>يستنى ساعة كاملة في البيت لحد ما الألم يروح لوحده بدون ما يكلم حد.</span>
+              </button>
+              <button type="button" class="option-btn" data-correct="true">
+                <span class="option-check"></span>
+                <span>نطلب المساعدة الطبية الطارئة (123) فوراً، وممكن ياخد جرعات إضافية حسب توجيهات الطبيب أثناء انتظار وصول الإسعاف.</span>
+              </button>
+              <button type="button" class="option-btn" data-correct="false">
+                <span class="option-check"></span>
+                <span>ياخد 5 حبوب مع بعض ويقوم يتمشى في الشارع.</span>
+              </button>
+            </div>
+          </div>
+          <button id="p3SubmitScenarioBtn" type="button" class="btn-primary">تأكيد التصرف</button>
+          <div id="p3FeedbackB" class="feedback-msg"></div>
+        </div>
+
+        <!-- Stage 3C: Reward Digit 2 -->
+        <div id="p3Reward" class="digit-reward-box" style="display:none;">
+          <div class="digit-reward-title">برافو! كشفت الرقم الثالث من الكود</div>
+          <div class="digit-big tabular-nums">2</div>
+          <p class="digit-reward-cue">
+            الرقم الثالث هو <strong>(2)</strong> — جزء من رقم الإسعاف <strong>123</strong>!<br />
+            لو ألم الصدر استمر بعد 5 دقائق من أول جرعة، أو حصل إغماء/دوخة شديدة، ضيق شديد في التنفس، أو ألم أشد/متكرر/مختلف عن الطبيعي، نطلب الطوارئ فوراً!
+          </p>
+          <button type="button" class="btn-primary" data-close="puzzle3Modal">ارجع للغرفة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       PUZZLE 4 MODAL: درج الأدوية (الممنوعات الخطيرة والتداخلات)
+       ======================================================================== -->
+  <div id="puzzle4Modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="p4Title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-kicker">اللغز ٤ · درج الأدوية</span>
+          <h2 id="p4Title" class="modal-title">الممنوعات الخطيرة: إيه اللي لازم نتجنبه تماماً؟</h2>
+        </div>
+        <button class="modal-close" type="button" data-close="puzzle4Modal" aria-label="إغلاق">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- Stage 4A: Drawer Cleanup (5 Dangerous Items to Remove, 2 Safe to Keep) -->
+        <div id="p4StageA">
+          <div class="section-step-title">
+            <span class="step-num">١</span>
+            <span>نظّف درج عم سعيد من الممنوعات والعادات الخطيرة</span>
+          </div>
+          <div class="instruction-box">
+            اضغط على <strong>الـ 5 حاجات الخطيرة والممنوعة</strong> عشان تستبعدها فوراً من درج عم سعيد، وسيب الحاجات الآمنة مكانها!
+            <span id="p4CleanCount" style="font-weight:800; color:var(--accent-red); margin-right:6px;">(تم إزالة 0 من 5)</span>
+          </div>
+
+          <div id="p4DrawerGrid" class="drawer-grid"></div>
+          <div id="p4FeedbackA" class="feedback-msg"></div>
+        </div>
+
+        <!-- Stage 4B: Contraindication Mechanism + Missed Dose Rules -->
+        <div id="p4StageB" style="display:none;">
+          <div class="section-step-title">
+            <span class="step-num">٢</span>
+            <span>سؤالين مهمين عن التداخلات الدوائية ونسيان الجرعة</span>
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-q">١. ليه ممنوع نهائياً الجمع بين النيتروجليسرين وأدوية زي سيلدينافيل (فياجرا)، تادالافيل (سياليس)، والأدوية المشابهة أو ريوسيجوات؟</div>
+            <div class="option-list" id="p4Q1Options">
+              <button type="button" class="option-btn" data-q="1" data-correct="true">
+                <span class="option-check"></span>
+                <span>لأن الجمع بينهم ممكن يسبب هبوط حاد وخطير جداً في ضغط الدم.</span>
+              </button>
+              <button type="button" class="option-btn" data-q="1" data-correct="false">
+                <span class="option-check"></span>
+                <span>لأنهم بيغيروا طعم الحباية بس ومفيش أي خطر على ضغط الدم.</span>
+              </button>
+              <button type="button" class="option-btn" data-q="1" data-correct="false">
+                <span class="option-check"></span>
+                <span>عشان بيسببوا ارتفاع شديد في درجة حرارة الجسم.</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="quiz-block">
+            <div class="quiz-q">٢. لو عم سعيد بياخد نيتروجليسرين ممتد المفعول بانتظام ونسي جرعة، يعمل إيه (وإيه الفرق عن حبوب تحت اللسان)؟</div>
+            <div class="option-list" id="p4Q2Options">
+              <button type="button" class="option-btn" data-q="2" data-correct="false">
+                <span class="option-check"></span>
+                <span>يضاعف الجرعة اللي بعدها عشان يعوّض الجرعة اللي فاتته.</span>
+              </button>
+              <button type="button" class="option-btn" data-q="2" data-correct="true">
+                <span class="option-check"></span>
+                <span>في النوع الممتد المنتظم يتبع تعليمات الدواء وممنوع يضاعف الجرعة التالية؛ أما حبوب تحت اللسان اللي عند اللزوم لألم الصدر فملهاش جدول مواعيد ثابت.</span>
+              </button>
+              <button type="button" class="option-btn" data-q="2" data-correct="false">
+                <span class="option-check"></span>
+                <span>حبوب تحت اللسان لازم تتاخد في مواعيد ثابتة كل يوم حتى لو مفيش ألم صدر.</span>
+              </button>
+            </div>
+          </div>
+          <button id="p4SubmitDangerBtn" type="button" class="btn-primary">تأكيد الإجابات</button>
+          <div id="p4FeedbackB" class="feedback-msg"></div>
+        </div>
+
+        <!-- Stage 4C: Reward Digit 3 -->
+        <div id="p4Reward" class="digit-reward-box" style="display:none;">
+          <div class="digit-reward-title">ممتاز! الدرج بقى آمن وكشفت الرقم الرابع</div>
+          <div class="digit-big tabular-nums">3</div>
+          <p class="digit-reward-cue">
+            الرقم الرابع هو <strong>(3)</strong> — ممنوع الجمع مع الفياجرا/السياليس أو ريوسيجوات، وممنوع الكحوليات والوقوف المفاجئ والجرعات الزائدة، وممنوع مضاعفة الجرعة الفائتة للأنواع المنتظمة!
+          </p>
+          <button type="button" class="btn-primary" data-close="puzzle4Modal">ارجع للغرفة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       PUZZLE 5 MODAL: ترابيزة العادات والخرافات (Myths vs Facts + Lifestyle Tips)
+       ======================================================================== -->
+  <div id="puzzle5Modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="p5Title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-kicker">اللغز ٥ · ترابيزة العادات والخرافات</span>
+          <h2 id="p5Title" class="modal-title">خرافات وحقائق + نصائح نمط الحياة الصحي</h2>
+        </div>
+        <button class="modal-close" type="button" data-close="puzzle5Modal" aria-label="إغلاق">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- Stage 5A: All 3 Myths vs Facts -->
+        <div id="p5StageA">
+          <div class="section-step-title">
+            <span class="step-num">١</span>
+            <span>صحّح الخرافات الشائعة عند عم سعيد (خرافة ولا حقيقة؟)</span>
+          </div>
+          <div class="instruction-box">
+            اقرأ كل جملة وحدد هي <strong>خرافة</strong> ولا <strong>حقيقة</strong> عشان نصلّح أي معلومة غلط:
+          </div>
+
+          <div id="p5MythsList" class="myth-list"></div>
+          <div id="p5FeedbackA" class="feedback-msg"></div>
+        </div>
+
+        <!-- Stage 5B: 4 Lifestyle Tips Builder -->
+        <div id="p5StageB" style="display:none;">
+          <div class="section-step-title">
+            <span class="step-num">٢</span>
+            <span>اختار خطة نمط الحياة الصحي لقلب عم سعيد (4 نصائح صحيحة)</span>
+          </div>
+          <div class="instruction-box">
+            اختر <strong>الـ 4 عادات الصحية الصحيحة</strong> اللي بتحمي قلب عم سعيد وتجنّب العادتين الغلط:
+          </div>
+
+          <div id="p5LifestyleList" class="option-list" style="margin-bottom:16px;">
+            <button type="button" class="option-btn" data-ls="true">
+              <span class="option-check"></span>
+              <span>التوقف عن التدخين نهائياً.</span>
+            </button>
+            <button type="button" class="option-btn" data-ls="true">
+              <span class="option-check"></span>
+              <span>اتباع نظام غذائي صحي للقلب.</span>
+            </button>
+            <button type="button" class="option-btn" data-ls="false">
+              <span class="option-check"></span>
+              <span>وقف باقي أدوية القلب أول ما أحس إني كويس.</span>
+            </button>
+            <button type="button" class="option-btn" data-ls="true">
+              <span class="option-check"></span>
+              <span>اتباع نصيحة الطبيب بخصوص ممارسة الرياضة.</span>
+            </button>
+            <button type="button" class="option-btn" data-ls="true">
+              <span class="option-check"></span>
+              <span>الانتظام على باقي الأدوية الموصوفة من الطبيب في مواعيدها.</span>
+            </button>
+            <button type="button" class="option-btn" data-ls="false">
+              <span class="option-check"></span>
+              <span>مضاعفة جرعة النيتروجليسرين المنتظم لو نسيت الجرعة اللي قبلها.</span>
+            </button>
+          </div>
+
+          <button id="p5VerifyLifestyleBtn" type="button" class="btn-primary">تأكيد خطة نمط الحياة</button>
+          <div id="p5FeedbackB" class="feedback-msg"></div>
+        </div>
+
+        <!-- Stage 5C: Reward Digit 4 -->
+        <div id="p5Reward" class="digit-reward-box" style="display:none;">
+          <div class="digit-reward-title">رائع! كشفت الرقم الخامس والأخير من الكود</div>
+          <div class="digit-big tabular-nums">4</div>
+          <p class="digit-reward-cue">
+            الرقم الخامس هو <strong>(4)</strong> — عشان <strong>الـ 4 قواعد لنمط الحياة الصحي</strong> (وقف التدخين، الأكل الصحي للقلب، الرياضة بنصيحة الطبيب، والانتظام على باقي الأدوية)!<br />
+            لو جمعت الـ 5 أرقام، روح افتح <strong>شنطة الطوارئ المقفولة</strong> دلوقتي!
+          </p>
+          <button type="button" class="btn-primary" data-close="puzzle5Modal">ارجع للغرفة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       PUZZLE 6 MODAL: شنطة الطوارئ المقفولة (5-Digit Combination Padlock)
+       ======================================================================== -->
+  <div id="safeModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="safeTitle">
+    <div class="modal-card" style="max-width: 620px;">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-kicker">القفل السري · شنطة الطوارئ</span>
+          <h2 id="safeTitle" class="modal-title">أدخل الكود المكون من 5 أرقام</h2>
+        </div>
+        <button class="modal-close" type="button" data-close="safeModal" aria-label="إغلاق">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="safe-panel">
+          <div style="font-size:0.93rem; color:#CBD5E1; font-weight:700;">
+            استخدم أزرار (+) و (−) لضبط الأرقام الـ 5 اللي جمعتها من الألغاز
+          </div>
+
+          <div class="dials-row">
+            <div class="dial-unit">
+              <span class="dial-label">١. الشباك</span>
+              <button type="button" class="dial-btn" data-dial="0" data-dir="1" aria-label="زيادة الرقم الأول">+</button>
+              <div id="dialVal0" class="dial-window tabular-nums">0</div>
+              <button type="button" class="dial-btn" data-dial="0" data-dir="-1" aria-label="إنقاص الرقم الأول">−</button>
+            </div>
+            <div class="dial-unit">
+              <span class="dial-label">٢. عم سعيد</span>
+              <button type="button" class="dial-btn" data-dial="1" data-dir="1" aria-label="زيادة الرقم الثاني">+</button>
+              <div id="dialVal1" class="dial-window tabular-nums">0</div>
+              <button type="button" class="dial-btn" data-dial="1" data-dir="-1" aria-label="إنقاص الرقم الثاني">−</button>
+            </div>
+            <div class="dial-unit">
+              <span class="dial-label">٣. الطوارئ</span>
+              <button type="button" class="dial-btn" data-dial="2" data-dir="1" aria-label="زيادة الرقم الثالث">+</button>
+              <div id="dialVal2" class="dial-window tabular-nums">0</div>
+              <button type="button" class="dial-btn" data-dial="2" data-dir="-1" aria-label="إنقاص الرقم الثالث">−</button>
+            </div>
+            <div class="dial-unit">
+              <span class="dial-label">٤. الدرج</span>
+              <button type="button" class="dial-btn" data-dial="3" data-dir="1" aria-label="زيادة الرقم الرابع">+</button>
+              <div id="dialVal3" class="dial-window tabular-nums">0</div>
+              <button type="button" class="dial-btn" data-dial="3" data-dir="-1" aria-label="إنقاص الرقم الرابع">−</button>
+            </div>
+            <div class="dial-unit">
+              <span class="dial-label">٥. العادات</span>
+              <button type="button" class="dial-btn" data-dial="4" data-dir="1" aria-label="زيادة الرقم الخامس">+</button>
+              <div id="dialVal4" class="dial-window tabular-nums">0</div>
+              <button type="button" class="dial-btn" data-dial="4" data-dir="-1" aria-label="إنقاص الرقم الخامس">−</button>
+            </div>
+          </div>
+
+          <button id="unlockSafeBtn" type="button" class="btn-primary btn-amber" style="width:100%; font-size:1.06rem;">
+            افتح شنطة الطوارئ
+          </button>
+        </div>
+
+        <div id="safeFeedback" class="feedback-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       VICTORY & SAFETY SUMMARY MODAL ("روشتة الأمان لعم سعيد")
+       ======================================================================== -->
+  <div id="victoryModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="victoryHeadline">
+    <div class="modal-card wide">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-kicker">أحسنت!</span>
+          <h2 class="modal-title">الخزنة اتفتحت وعم سعيد بخير!</h2>
+        </div>
+      </div>
+      <div class="modal-body">
+        <!-- Animated Open Safe SVG revealing Nitroglycerin -->
+        <div class="safe-open-stage" aria-hidden="true">
+          <svg id="safeOpenSvg" width="320" height="186" viewBox="0 0 320 190">
+            <rect x="70" y="20" width="180" height="150" rx="16" fill="#1E293B" stroke="#0F172A" stroke-width="4"/>
+            <rect x="86" y="34" width="148" height="122" rx="10" fill="#0F172A"/>
+            <radialGradient id="safeInnerGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#34D399" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#0F172A" stop-opacity="0"/>
+            </radialGradient>
+            <circle cx="165" cy="96" r="62" fill="url(#safeInnerGlow)"/>
+            <rect x="92" y="132" width="136" height="10" rx="4" fill="#334155"/>
+
+            <!-- Nitroglycerin Dark Amber Glass Bottle Revealed -->
+            <g class="nitro-reveal-pop">
+              <rect x="144" y="64" width="44" height="68" rx="8" fill="#78350F" stroke="#FDE68A" stroke-width="2.5"/>
+              <rect x="151" y="48" width="30" height="16" rx="4" fill="#F8FAFC" stroke="#2C221E" stroke-width="2.2"/>
+              <rect x="149" y="80" width="34" height="34" rx="4" fill="#FEF3C7"/>
+              <text x="166" y="96" text-anchor="middle" font-size="11" font-weight="900" fill="#78350F">NTG</text>
+              <text x="166" y="108" text-anchor="middle" font-size="8" font-weight="800" fill="#0F766E">أمان ✓</text>
+              <path d="M126 62 L130 52 L134 62 L144 66 L134 70 L130 80 L126 70 L116 66 Z" fill="#FBBF24"/>
+              <path d="M202 52 L205 44 L208 52 L216 55 L208 58 L205 66 L202 58 L194 55 Z" fill="#34D399"/>
+            </g>
+
+            <!-- Swinging Safe Door -->
+            <g id="animatedSafeDoor" class="safe-door-animated">
+              <rect x="86" y="34" width="148" height="122" rx="10" fill="#475569" stroke="#CBD5E1" stroke-width="3"/>
+              <circle cx="194" cy="95" r="20" fill="#1E293B" stroke="#CBD5E1" stroke-width="3"/>
+              <circle cx="216" cy="52" r="6" fill="#22C55E"/>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Personalized Congratulatory Banner -->
+        <div class="victory-banner">
+          <h3 id="victoryHeadline" class="victory-headline">
+            برافو يا بطل الطوارئ! أنت كده أنقذت عم سعيد وعرّفته كل المعلومات الصح، والخزنة اتفتحت ووصلنا لعلبة النيتروجليسرين!
+          </h3>
+          <div id="victoryMeta" class="victory-meta tabular-nums">
+            الكود السري: 5 - 1 - 2 - 3 - 4 · الوقت المتبقي: 05:00 · عدد الأخطاء: 0
+          </div>
+        </div>
+
+        <!-- Structured Safety Summary ("روشتة الأمان لعم سعيد") -->
+        <section class="roshetta-box" aria-label="روشتة الأمان لعم سعيد">
+          <div class="roshetta-header">
+            <h3 class="roshetta-title">روشتة الأمان لعم سعيد — دليل النيتروجليسرين</h3>
+            <div style="font-size:0.9rem; font-weight:900; color:var(--accent-red);">
+              طوارئ الإسعاف: 123
+            </div>
+          </div>
+
+          <div class="roshetta-grid">
+            <div class="roshetta-sec">
+              <h4>١. ما هو النيتروجليسرين ولماذا يُوصف؟</h4>
+              <ul>
+                <li>يريّح ويوسّع الأوعية الدموية عشان الدم يوصل للقلب بسهولة ويقلل المجهود عليه.</li>
+                <li>يُستخدم لتخفيف أو منع ألم الصدر (الذبحة الصدرية) الناتج عن قلة تدفق الدم للقلب.</li>
+                <li>الجرعة الفائتة: حبوب تحت اللسان عند اللزوم ليس لها جدول ثابت؛ أما النوع المنتظم ممتد المفعول فممنوع مضاعفة الجرعة التالية عند نسيان جرعة.</li>
+              </ul>
+            </div>
+
+            <div class="roshetta-sec">
+              <h4>٢. طريقة وميعاد الاستخدام</h4>
+              <ul>
+                <li>الجلوس فوراً قبل أخذ الدواء لتجنب الدوخة أو السقوط.</li>
+                <li>حبوب تحت اللسان: توضع تحت اللسان لتذوب بدون مضغ أو بلع. البخاخ: يُبخ تحت اللسان حسب الإرشادات.</li>
+                <li>إذا لم يختفِ ألم الصدر خلال 5 دقائق بعد أول جرعة، اطلب الطوارئ 123 فوراً (يمكن أخذ جرعات إضافية حسب تعليمات الطبيب أثناء الانتظار).</li>
+                <li>للوقاية قبل نشاط يسبب الذبحة: يمكن أخذه قبل النشاط بوقت قصير حسب توجيهات الطبيب.</li>
+              </ul>
+            </div>
+
+            <div class="roshetta-sec red-sec">
+              <h4>٣. علامات الخطر (اطلب الطوارئ 123 فوراً)</h4>
+              <ul>
+                <li>استمرار ألم الصدر بعد أول جرعة وانتظار 5 دقائق.</li>
+                <li>الإغماء أو الشعور بدوخة شديدة.</li>
+                <li>ضيق شديد في التنفس.</li>
+                <li>ألم صدر أشد من المعتاد أو متكرر أو مختلف عن الطبيعي.</li>
+              </ul>
+            </div>
+
+            <div class="roshetta-sec red-sec">
+              <h4>٤. ممنوعات لازم نتجنبها</h4>
+              <ul>
+                <li>سيلدينافيل (فياجرا)، تادالافيل (سياليس) والأدوية المشابهة: ممنوع الجمع تماماً لخطورة الهبوط الحاد في الضغط.</li>
+                <li>ريوسيجوات (Riociguat): تجنب الجمع بينه وبين النيتروجليسرين.</li>
+                <li>الكحوليات: تزود الدوخة وهبوط ضغط الدم.</li>
+                <li>تجنب الوقوف المفاجئ، ولا تأخذ جرعات زائدة عن تعليمات الطبيب.</li>
+              </ul>
+            </div>
+
+            <div class="roshetta-sec">
+              <h4>٥. التخزين السليم</h4>
+              <ul>
+                <li>حفظ حبوب تحت اللسان في علبتها الأصلية المحكمة الغلق.</li>
+                <li>حمايتها من الحرارة والرطوبة والضوء المباشر.</li>
+                <li>حفظها بعيداً عن متناول الأطفال.</li>
+              </ul>
+            </div>
+
+            <div class="roshetta-sec">
+              <h4>٦. خرافات وحقائق ونمط الحياة</h4>
+              <ul>
+                <li>الصداع عرض شائع بسبب توسع الأوعية وليس معناه أن الدواء مضر؛ وممنوع بلع الحباية أو أخذها مع الفياجرا حتى لو حاسس إنك كويس.</li>
+                <li>نمط الحياة: التوقف عن التدخين، الأكل الصحي للقلب، الرياضة حسب نصيحة الطبيب، والانتظام على باقي الأدوية الموصوفة.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <div class="victory-actions">
+          <button id="playAgainBtn" type="button" class="btn-primary">العب تاني</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       TIME UP MODAL
+       ======================================================================== -->
+  <div id="timeoutModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="timeoutTitle">
+    <div class="modal-card" style="max-width: 480px; text-align:center;">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-kicker" style="color:var(--accent-red);">انتهى الوقت</span>
+          <h2 id="timeoutTitle" class="modal-title">خلص الوقت!</h2>
+        </div>
+      </div>
+      <div class="modal-body">
+        <p class="story-lead">
+          متقلقش يا <strong id="timeoutPlayerName">بطل الطوارئ</strong>! عم سعيد لسه محتاج مساعدتك عشان نفتح شنطة الطوارئ ونعلّمه القواعد الصح للنيتروجليسرين.
+        </p>
+        <button id="retryAfterTimeoutBtn" type="button" class="btn-primary" style="width:100%;">حاول تاني (العب من جديد)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* =====================================================================
+         1. WEB AUDIO API SYNTHESIZER (No External Audio Files)
+         ===================================================================== */
+      class SoundEngine {
+        constructor() {
+          this.ctx = null;
+          this.enabled = true;
+        }
+        init() {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
+          }
+        }
+        tone(freq, duration, type = 'sine', vol = 0.14, delay = 0) {
+          if (!this.enabled) return;
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime + delay;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(vol, now + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + duration + 0.02);
+        }
+        glideTone(startFreq, endFreq, duration, type = 'sine', vol = 0.12, delay = 0) {
+          if (!this.enabled) return;
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime + delay;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(startFreq, now);
+          osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), now + duration);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(vol, now + 0.014);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + duration + 0.02);
+        }
+        chipTone(freq, duration, type = 'square', vol = 0.05, delay = 0, cutoff = 2100) {
+          if (!this.enabled || !freq) return;
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime + delay;
+          const osc = this.ctx.createOscillator();
+          const filter = this.ctx.createBiquadFilter();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(cutoff, now);
+          gain.gain.setValueAtTime(0.0008, now);
+          gain.gain.exponentialRampToValueAtTime(vol, now + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + duration + 0.02);
+        }
+        // Punchy, exciting retro Mario-style SFX (clearly louder than BGM)
+        click() {
+          this.glideTone(420, 720, 0.07, 'square', 0.16, 0);
+        }
+        dialTick() {
+          this.tone(920, 0.045, 'square', 0.13);
+        }
+        error() {
+          // Classic playful retro bump / oops bounce
+          this.glideTone(392, 240, 0.12, 'square', 0.2, 0);
+          this.glideTone(294, 155, 0.2, 'triangle', 0.24, 0.11);
+        }
+        stepSuccess() {
+          // Classic retro Coin Ding-Ding! (B5 -> E6)
+          this.chipTone(987.77, 0.09, 'square', 0.22, 0, 3400);
+          this.chipTone(1318.51, 0.24, 'square', 0.22, 0.085, 3400);
+        }
+        digitUnlock() {
+          // Exciting retro Power-Up / 1-UP arpeggio
+          const seq = [659.25, 783.99, 1318.51, 1046.5, 1174.66, 1567.98];
+          seq.forEach((f, i) => {
+            this.chipTone(f, i === seq.length - 1 ? 0.28 : 0.1, 'square', 0.22, i * 0.085, 3600);
+          });
+        }
+        victory() {
+          // Triumphant retro Stage-Clear Fanfare!
+          const melody = [
+            [523.25, 0.11, 0],
+            [659.25, 0.11, 0.11],
+            [783.99, 0.11, 0.22],
+            [1046.5, 0.16, 0.33],
+            [783.99, 0.11, 0.50],
+            [1046.5, 0.45, 0.62],
+            [1318.51, 0.45, 0.62]
+          ];
+          melody.forEach(([f, d, t]) => this.chipTone(f, d, 'square', 0.22, t, 3600));
+          this.tone(261.63, 0.48, 'triangle', 0.24, 0.62);
+        }
+        // Mario-style "HURRY UP!" urgent warning jingle when entering final minute
+        hurryWarning() {
+          const seq = [
+            [587.33, 0.08, 0],
+            [698.46, 0.08, 0.085],
+            [880.00, 0.08, 0.17],
+            [659.25, 0.08, 0.27],
+            [783.99, 0.08, 0.355],
+            [987.77, 0.14, 0.44]
+          ];
+          seq.forEach(([f, d, t]) => this.chipTone(f, d, 'square', 0.2, t, 3200));
+        }
+        // Crisp urgent countdown tick for final 15 seconds
+        dangerTick(isFinalFive) {
+          this.chipTone(isFinalFive ? 1174.66 : 987.77, 0.06, 'square', isFinalFive ? 0.14 : 0.1, 0, 3000);
+        }
+        // Upbeat Mario-style BGM that shifts into thrilling suspense/danger mode when time runs low
+        playBgmStep(stepIndex, dangerMode = false) {
+          if (!this.enabled) return;
+          const N = {
+            G4: 392.00, Ab4: 415.30, B4: 493.88,
+            C5: 523.25, D5: 587.33, Eb5: 622.25, E5: 659.25, F5: 698.46, Fs5: 739.99,
+            G5: 783.99, Ab5: 830.61, A5: 880.00, Bb5: 932.33, B5: 987.77, C6: 1046.50,
+            F2: 87.31, Fs2: 92.50, G2: 98.00, Ab2: 103.83, A2: 110.00, B2: 123.47,
+            C3: 130.81, D3: 146.83, Eb3: 155.56, E3: 164.81, F3: 174.61, G3: 196.00, A3: 220.00
+          };
+
+          if (dangerMode) {
+            // Thrilling minor-key Mario Castle / Danger Rush loop (32 steps)
+            const dangerLead = [
+              N.C5, N.Eb5, N.G5, N.Fs5, N.G5, 0, N.Eb5, N.C5,
+              N.D5, N.F5, N.Ab5, N.G5, N.F5, 0, N.D5, N.B4,
+              N.C5, N.Eb5, N.G5, N.C6, N.B5, N.Ab5, N.G5, N.Fs5,
+              N.G5, 0, N.G5, N.F5, N.Eb5, N.D5, N.C5, 0
+            ];
+            const dangerBass = [
+              N.C3, N.C3, N.G2, N.G2, N.C3, N.Eb3, N.D3, N.C3,
+              N.Ab2, N.Ab2, N.G2, N.G2, N.F2, N.Ab2, N.G2, N.B2,
+              N.C3, N.C3, N.Eb3, N.Eb3, N.F3, N.F3, N.Fs2, N.G2,
+              N.G2, N.G2, N.B2, N.D3, N.C3, N.G2, N.C3, 0
+            ];
+            const idx = stepIndex % dangerLead.length;
+            const lNote = dangerLead[idx];
+            const bNote = dangerBass[idx];
+
+            if (lNote) {
+              this.chipTone(lNote, 0.11, 'square', 0.056, 0, 2500);
+            }
+            if (bNote) {
+              this.tone(bNote, 0.12, 'sawtooth', 0.052, 0);
+            }
+            // Driving double-time danger kick & tense hi-hat
+            if (idx % 2 === 0) {
+              this.glideTone(155, 52, 0.06, 'sine', 0.085, 0);
+            } else {
+              this.tone(1480, 0.022, 'triangle', 0.032, 0);
+            }
+            return;
+          }
+
+          // 64-step (8-bar) cheerful bouncy Mario-style platformer melody
+          const lead = [
+            N.E5, 0, N.E5, 0, N.C5, N.E5, N.G5, 0,
+            N.A5, 0, N.G5, N.E5, N.D5, 0, N.E5, N.G5,
+            N.F5, N.A5, N.G5, N.F5, N.E5, N.G5, N.C6, 0,
+            N.B5, N.A5, N.G5, N.F5, N.D5, 0, N.G4, 0,
+            N.C5, N.E5, N.G5, 0, N.E5, N.G5, N.A5, 0,
+            N.G5, 0, N.E5, N.C5, N.D5, N.E5, N.D5, 0,
+            N.F5, 0, N.A5, N.G5, N.F5, N.E5, N.D5, N.E5,
+            N.C5, N.E5, N.G5, N.C6, 0, N.G5, 0, 0
+          ];
+          // Classic bouncy 8-bit walking bassline
+          const bass = [
+            N.C3, 0, N.G3, 0, N.C3, 0, N.E3, 0,
+            N.F3, 0, N.C3, 0, N.G2, 0, N.D3, 0,
+            N.F2, 0, N.C3, 0, N.C3, 0, N.E3, 0,
+            N.G2, 0, N.D3, 0, N.G2, N.A2, N.G2, 0,
+            N.C3, 0, N.G3, 0, N.A2, 0, N.E3, 0,
+            N.E3, 0, N.C3, 0, N.G2, 0, N.D3, 0,
+            N.F2, 0, N.C3, 0, N.G2, 0, N.D3, 0,
+            N.C3, 0, N.G2, 0, N.C3, 0, N.G2, 0
+          ];
+          const idx = stepIndex % lead.length;
+          const lNote = lead[idx];
+          const bNote = bass[idx];
+
+          if (lNote) {
+            this.chipTone(lNote, 0.13, 'square', 0.044, 0, 1950);
+          }
+          if (bNote) {
+            this.tone(bNote, 0.15, 'triangle', 0.072, 0);
+          }
+          // Subtle bouncy arcade beat kick on downbeats
+          if (idx % 4 === 0) {
+            this.glideTone(135, 58, 0.065, 'sine', 0.06, 0);
+          } else if (idx % 4 === 2) {
+            this.tone(1180, 0.02, 'triangle', 0.022, 0);
+          }
+        }
+      }
+
+      const sound = new SoundEngine();
+
+      /* =====================================================================
+         2. GAME STATE (5 Puzzles -> 5-Digit Code: 5 - 1 - 2 - 3 - 4)
+         ===================================================================== */
+      const INITIAL_TIME = 300; // 5 minutes
+      const SECRET_CODE = [5, 1, 2, 3, 4];
+
+      const state = {
+        phase: 'START', // START | PLAYING | WON | LOST
+        playerName: 'بطل الطوارئ',
+        timeLeft: INITIAL_TIME,
+        mistakes: 0,
+        timerId: null,
+        pulseId: null,
+        beatCount: 0,
+        panicUntil: 0,
+        hurryPlayed: false,
+        solved: { p1: false, p2: false, p3: false, p4: false, p5: false },
+        unlockedDigits: [null, null, null, null, null],
+        dials: [0, 0, 0, 0, 0],
+
+        p1: { pillsMoved: new Set(), capped: false, shelved: false, q1Pick: null, q2Pick: null, q3Pick: null },
+        p2: { orderSelection: [], q1Pick: null, q2Pick: null },
+        p3: { redFlagsSelected: new Set(), scenarioPick: null },
+        p4: { removedDangerIds: new Set(), dangerPick: null },
+        p5: { mythsSolved: new Set(), lifestyleSelected: new Set() }
+      };
+
+      /* =====================================================================
+         3. PUZZLE CONTENT DEFINITIONS
+         ===================================================================== */
+      const P2_STEPS = [
+        { id: 'sit', order: 1, text: 'الجلوس فوراً لتجنب الدوخة أو السقوط', icon: '🪑' },
+        { id: 'tablet', order: 2, text: 'وضع حباية واحدة تحت اللسان لتذوب بدون مضغ أو بلع', icon: '💊' },
+        { id: 'wait', order: 3, text: 'الانتظار 5 دقائق لمتابعة تحسن الألم', icon: '⏱️' },
+        { id: 'call123', order: 4, text: 'لو الألم مستمر بعد 5 دقائق، اطلب الطوارئ 123 فوراً', icon: '🚑' }
+      ];
+
+      const P4_DRAWER_ITEMS = [
+        {
+          id: 'pde5',
+          title: 'سيلدينافيل (فياجرا) وتادالافيل (سياليس)',
+          desc: 'وأي أدوية مشابهة — ممنوعة تماماً مع النيتروجليسرين',
+          dangerous: true,
+          reason: 'صح! ممنوع الجمع بينهم وبين النيتروجليسرين لأن ضغط الدم ممكن ينخفض بشكل خطير جداً.',
+          color: '#2563EB'
+        },
+        {
+          id: 'heartmeds',
+          title: 'باقي أدوية القلب الموصوفة بانتظام',
+          desc: 'أدوية الضغط والكوليسترول اللي الدكتور كاتبها لعم سعيد',
+          dangerous: false,
+          reason: 'لأ! دي أدوية القلب الموصوفة لعم سعيد ولازم ينتظم عليها وميشيلهاش.',
+          color: '#0F766E'
+        },
+        {
+          id: 'riociguat',
+          title: 'دواء ريوسيجوات (Riociguat)',
+          desc: 'دواء لعلاج ارتفاع ضغط الشريان الرئوي',
+          dangerous: true,
+          reason: 'برافو! لازم نتجنب الجمع بين ريوسيجوات والنيتروجليسرين لخطورة الهبوط الحاد في الضغط.',
+          color: '#7C3AED'
+        },
+        {
+          id: 'alcohol',
+          title: 'الكحوليات (المشروبات الكحولية)',
+          desc: 'مشروبات تحتوي على كحول',
+          dangerous: true,
+          reason: 'ممتاز! الكحوليات بتزود الدوخة وهبوط ضغط الدم مع النيتروجليسرين.',
+          color: '#DC2626'
+        },
+        {
+          id: 'standfast',
+          title: 'الوقوف المفاجئ بسرعة',
+          desc: 'القيام فجأة من الكرسي أو السرير بعد الدواء',
+          dangerous: true,
+          reason: 'صح! تجنب الوقوف المفاجئ عشان ميحصلش دوخة شديدة أو سقوط.',
+          color: '#EA580C'
+        },
+        {
+          id: 'card123',
+          title: 'كارت المتابعة ورقم الإسعاف 123',
+          desc: 'كارت فيه قائمة أدوية عم سعيد وأرقام الطوارئ',
+          dangerous: false,
+          reason: 'لأ! الكارت ده مهم وآمن جداً ولازم يفضل دايماً مع عم سعيد.',
+          color: '#059669'
+        },
+        {
+          id: 'extradoses',
+          title: 'أخذ جرعات زيادة عن تعليمات الطبيب',
+          desc: 'زيادة عدد الجرعات بدون استشارة طبية',
+          dangerous: true,
+          reason: 'برافو! ممنوع أخذ جرعات زائدة عن تعليمات الطبيب الموصوفة.',
+          color: '#B91C1C'
+        }
+      ];
+
+      const P5_MYTHS = [
+        {
+          id: 'm1',
+          statement: '«الصداع بعد النيتروجليسرين معناه إن الدواء مضر»',
+          isFact: false,
+          explain: 'خرافة! الحقيقة: الصداع عرض شائع وطبيعي لأن الدواء بيوسّع الأوعية الدموية.'
+        },
+        {
+          id: 'm2',
+          statement: '«أقدر آخد النيتروجليسرين مع الفياجرا لو حاسس إني كويس»',
+          isFact: false,
+          explain: 'خرافة! الحقيقة: الجمع بينهم ممكن يسبب هبوط خطير جداً في ضغط الدم حتى لو حاسس إنك كويس.'
+        },
+        {
+          id: 'm3',
+          statement: '«المفروض أبلع حباية تحت اللسان»',
+          isFact: false,
+          explain: 'خرافة! الحقيقة: لازم تسيب الحباية تذوب تحت اللسان بدون مضغ أو بلع.'
+        }
+      ];
+
+      /* =====================================================================
+         4. DOM REFERENCES
+         ===================================================================== */
+      const el = {
+        appShell: document.getElementById('appShell'),
+        hudPlayerName: document.getElementById('hudPlayerName'),
+        hudMonitor: document.getElementById('hudMonitor'),
+        ecgSvg: document.getElementById('ecgSvg'),
+        ecgPath: document.getElementById('ecgPath'),
+        timerDisplay: document.getElementById('timerDisplay'),
+        bpmDisplay: document.getElementById('bpmDisplay'),
+        codeSlots: [0, 1, 2, 3, 4].map(i => document.getElementById('codeSlot' + i)),
+        soundToggleBtn: document.getElementById('soundToggleBtn'),
+        soundOnIcon: document.getElementById('soundOnIcon'),
+        soundOffIcon: document.getElementById('soundOffIcon'),
+        penaltyFlash: document.getElementById('penaltyFlash'),
+        penaltyToast: document.getElementById('penaltyToast'),
+        missionHint: document.getElementById('missionHint'),
+        saeedSpeech: document.getElementById('saeedSpeech'),
+        saeedMouth: document.getElementById('saeedMouth'),
+        saeedChestAlert: document.getElementById('saeedChestAlert'),
+        roomSafeLed: document.getElementById('roomSafeLed'),
+        roomSafeCodeLabel: document.getElementById('roomSafeCodeLabel'),
+        roomSunBox: document.getElementById('roomSunBox'),
+
+        startModal: document.getElementById('startModal'),
+        startForm: document.getElementById('startForm'),
+        playerNameInput: document.getElementById('playerNameInput'),
+        timeoutModal: document.getElementById('timeoutModal'),
+        timeoutPlayerName: document.getElementById('timeoutPlayerName'),
+        retryAfterTimeoutBtn: document.getElementById('retryAfterTimeoutBtn'),
+
+        modals: [
+          null,
+          document.getElementById('puzzle1Modal'),
+          document.getElementById('puzzle2Modal'),
+          document.getElementById('puzzle3Modal'),
+          document.getElementById('puzzle4Modal'),
+          document.getElementById('puzzle5Modal'),
+          document.getElementById('safeModal')
+        ],
+        victoryModal: document.getElementById('victoryModal'),
+
+        tagBg: [null, ...[1,2,3,4,5,6].map(i => document.getElementById('tagBg' + i))],
+        tagText: [null, ...[1,2,3,4,5,6].map(i => document.getElementById('tagText' + i))],
+        hotspots: [null, ...[1,2,3,4,5,6].map(i => document.getElementById('hotspot' + i))]
+      };
+
+      /* =====================================================================
+         5. UTILITY & HUD FUNCTIONS
+         ===================================================================== */
+      function formatTime(sec) {
+        const s = Math.max(0, sec);
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        return String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0');
+      }
+
+      function syncBodyScrollLock() {
+        const hasOpen = document.querySelector('.modal-backdrop.open') !== null;
+        document.body.classList.toggle('modal-open', hasOpen);
+      }
+
+      function showModal(modalEl) {
+        modalEl.classList.add('open');
+        const card = modalEl.querySelector('.modal-card');
+        if (card) card.scrollTop = 0;
+        syncBodyScrollLock();
+      }
+      function hideModal(modalEl) {
+        modalEl.classList.remove('open');
+        syncBodyScrollLock();
+      }
+
+      function centerRoomOnMobile() {
+        const scroller = document.getElementById('roomScroll');
+        if (!scroller) return;
+        const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+        if (maxScroll > 10) {
+          // RTL browsers vary in scrollLeft sign; test & center smoothly on Uncle Saeed
+          const half = Math.round(maxScroll / 2);
+          scroller.scrollLeft = 0;
+          scroller.scrollLeft = -half;
+          if (Math.abs(scroller.scrollLeft) < 5) {
+            scroller.scrollLeft = half;
+          }
+        }
+      }
+
+      function hideAllGameModals() {
+        for (let i = 1; i <= 6; i++) hideModal(el.modals[i]);
+        hideModal(el.victoryModal);
+        hideModal(el.timeoutModal);
+      }
+
+      function updateTimerAndECG() {
+        el.timerDisplay.textContent = formatTime(state.timeLeft);
+        const inPanic = Date.now() < state.panicUntil;
+
+        let bpm = 76;
+        let speed = 2.2;
+        let strokeColor = '#34D399';
+        el.hudMonitor.classList.remove('warning', 'danger');
+
+        if (inPanic || state.timeLeft <= 60) {
+          bpm = inPanic ? 134 : 118;
+          speed = inPanic ? 0.85 : 1.05;
+          strokeColor = '#F87171';
+          el.hudMonitor.classList.add('danger');
+        } else if (state.timeLeft <= 120) {
+          bpm = 96;
+          speed = 1.45;
+          strokeColor = '#FBBF24';
+          el.hudMonitor.classList.add('warning');
+        }
+
+        el.bpmDisplay.textContent = bpm + ' BPM';
+        el.ecgSvg.style.setProperty('--ecg-speed', speed + 's');
+        el.ecgPath.setAttribute('stroke', strokeColor);
+      }
+
+      function triggerPenalty(reasonText) {
+        if (state.phase !== 'PLAYING') return;
+        state.mistakes += 1;
+        state.timeLeft = Math.max(0, state.timeLeft - 20);
+        state.panicUntil = Date.now() + 3500;
+        sound.error();
+        updateTimerAndECG();
+
+        el.penaltyFlash.classList.add('active');
+        el.appShell.classList.remove('shake-anim');
+        void el.appShell.offsetWidth;
+        el.appShell.classList.add('shake-anim');
+
+        el.penaltyToast.textContent = reasonText ? ('خطأ! خصم 20 ثانية — ' + reasonText) : 'خطأ! خصم 20 ثانية من الوقت';
+        el.penaltyToast.classList.add('show');
+
+        setTimeout(() => el.penaltyFlash.classList.remove('active'), 360);
+        clearTimeout(triggerPenalty._t);
+        triggerPenalty._t = setTimeout(() => el.penaltyToast.classList.remove('show'), 2500);
+
+        if (state.timeLeft <= 0) handleTimeUp();
+      }
+
+      function scheduleNextPulse() {
+        stopPulseLoop();
+        if (state.phase !== 'PLAYING') return;
+        const inBoost = Date.now() < state.panicUntil;
+        const isDanger = inBoost || state.timeLeft <= 60;
+        // Normal upbeat Mario -> Faster tension under 2m -> Urgent minor-key Danger Mode under 1m or on mistake
+        let stepMs = 195;
+        if (isDanger) {
+          stepMs = state.timeLeft <= 20 ? 128 : 142;
+        } else if (state.timeLeft <= 120) {
+          stepMs = 168;
+        }
+        if (sound.enabled) {
+          sound.playBgmStep(state.beatCount++, isDanger);
+        }
+        state.pulseId = setTimeout(scheduleNextPulse, stepMs);
+      }
+
+      function stopPulseLoop() {
+        if (state.pulseId) {
+          clearTimeout(state.pulseId);
+          state.pulseId = null;
+        }
+      }
+
+      function startTimer() {
+        stopTimer();
+        updateTimerAndECG();
+        state.beatCount = 0;
+        state.hurryPlayed = false;
+        state.pulseId = setTimeout(scheduleNextPulse, 260);
+        state.timerId = setInterval(() => {
+          if (state.phase !== 'PLAYING') return;
+          state.timeLeft = Math.max(0, state.timeLeft - 1);
+          updateTimerAndECG();
+          // Trigger one-time "Hurry Up!" warning jingle when entering the final minute
+          if (state.timeLeft <= 60 && state.timeLeft > 0 && !state.hurryPlayed) {
+            state.hurryPlayed = true;
+            sound.hurryWarning();
+          }
+          // Urgent countdown ticks in the last 15 seconds
+          if (state.timeLeft <= 15 && state.timeLeft > 0) {
+            sound.dangerTick(state.timeLeft <= 5);
+          }
+          if (state.timeLeft <= 0) handleTimeUp();
+        }, 1000);
+      }
+
+      function stopTimer() {
+        stopPulseLoop();
+        if (state.timerId) {
+          clearInterval(state.timerId);
+          state.timerId = null;
+        }
+      }
+
+      function handleTimeUp() {
+        state.phase = 'LOST';
+        stopTimer();
+        hideAllGameModals();
+        el.timeoutPlayerName.textContent = state.playerName;
+        showModal(el.timeoutModal);
+      }
+
+      const TAG_META = [
+        null,
+        { key: 'p1', digit: 5, openLabel: '١. ترابيزة الشباك', doneLabel: '✓ ترابيزة الشباك (5)', qOpen: '١. الشباك', qDone: '✓ ١. الشباك (5)', stroke: '#D97706' },
+        { key: 'p2', digit: 1, openLabel: '٢. عم سعيد والجرعة', doneLabel: '✓ عم سعيد (1)', qOpen: '٢. عم سعيد', qDone: '✓ ٢. عم سعيد (1)', stroke: '#0F766E' },
+        { key: 'p3', digit: 2, openLabel: '٣. تليفون الطوارئ 123', doneLabel: '✓ الطوارئ 123 (2)', qOpen: '٣. الطوارئ 123', qDone: '✓ ٣. الطوارئ (2)', stroke: '#DC2626' },
+        { key: 'p4', digit: 3, openLabel: '٤. درج الأدوية', doneLabel: '✓ درج الأدوية (3)', qOpen: '٤. درج الأدوية', qDone: '✓ ٤. الدرج (3)', stroke: '#D97706' },
+        { key: 'p5', digit: 4, openLabel: '٥. العادات والخرافات', doneLabel: '✓ العادات والخرافات (4)', qOpen: '٥. العادات والخرافات', qDone: '✓ ٥. العادات (4)', stroke: '#0F766E' }
+      ];
+
+      function updateRoomProgressUI() {
+        state.unlockedDigits.forEach((d, idx) => {
+          const slot = el.codeSlots[idx];
+          if (d !== null) {
+            slot.textContent = String(d);
+            slot.classList.add('unlocked');
+          } else {
+            slot.textContent = '_';
+            slot.classList.remove('unlocked');
+          }
+        });
+
+        for (let i = 1; i <= 5; i++) {
+          const m = TAG_META[i];
+          const isSolved = state.solved[m.key];
+          if (isSolved) {
+            el.hotspots[i].classList.add('solved');
+            el.tagBg[i].setAttribute('stroke', '#15803D');
+            el.tagBg[i].setAttribute('fill', '#DCFCE7');
+            el.tagText[i].textContent = m.doneLabel;
+          } else {
+            el.hotspots[i].classList.remove('solved');
+            el.tagBg[i].setAttribute('stroke', m.stroke);
+            el.tagBg[i].setAttribute('fill', '#FFFDF9');
+            el.tagText[i].textContent = m.openLabel;
+          }
+        }
+
+        el.roomSunBox.style.opacity = state.solved.p1 ? '0.28' : '1';
+        el.saeedChestAlert.style.display = state.solved.p2 ? 'none' : 'block';
+        el.saeedMouth.setAttribute('d', state.solved.p2 ? 'M590 322 Q602 332 614 322' : 'M592 325 Q602 320 612 325');
+
+        const solvedCount = [state.solved.p1, state.solved.p2, state.solved.p3, state.solved.p4, state.solved.p5].filter(Boolean).length;
+
+        if (state.phase === 'WON') {
+          el.saeedSpeech.textContent = 'الحمد لله! الخزنة اتفتحت وبقيت زي الفل!';
+          el.roomSafeLed.setAttribute('fill', '#22C55E');
+          el.roomSafeCodeLabel.textContent = 'مفتوحة ✓';
+          el.roomSafeCodeLabel.setAttribute('fill', '#4ADE80');
+          el.tagBg[6].setAttribute('stroke', '#15803D');
+          el.tagBg[6].setAttribute('fill', '#DCFCE7');
+          el.tagText[6].textContent = '✓ شنطة الطوارئ مفتوحة';
+          el.tagText[6].setAttribute('fill', '#14532D');
+        } else if (solvedCount === 5) {
+          el.saeedSpeech.textContent = 'عاش يا بطل! معاك الـ 5 أرقام.. افتح الخزنة!';
+          el.missionHint.textContent = 'جمعت كل الأرقام الـ 5 (5 - 1 - 2 - 3 - 4)! اضغط على شنطة الطوارئ المقفولة لفتحها.';
+          el.roomSafeLed.setAttribute('fill', '#FBBF24');
+          el.roomSafeCodeLabel.textContent = 'جاهزة للفتح!';
+          el.roomSafeCodeLabel.setAttribute('fill', '#FDE047');
+        } else if (solvedCount > 0) {
+          el.saeedSpeech.textContent = 'الله يباركلك! كشفنا ' + solvedCount + ' من 5 أرقام.. كمّل!';
+          el.missionHint.textContent = 'فاضل ' + (5 - solvedCount) + ' ألغاز عشان نكمل الكود السري لشنطة الطوارئ.';
+          el.roomSafeLed.setAttribute('fill', '#EF4444');
+          el.roomSafeCodeLabel.textContent = 'مقفولة · 5 أرقام';
+          el.roomSafeCodeLabel.setAttribute('fill', '#F87171');
+        } else {
+          el.saeedSpeech.textContent = 'حاسس بضيق بسيط في صدري.. ساعدني!';
+          el.missionHint.textContent = 'اضغط على الأماكن المنورة في الغرفة لحل الألغاز الـ 5 وفتح شنطة الطوارئ!';
+          el.roomSafeLed.setAttribute('fill', '#EF4444');
+          el.roomSafeCodeLabel.textContent = 'مقفولة · 5 أرقام';
+          el.roomSafeCodeLabel.setAttribute('fill', '#F87171');
+          el.tagBg[6].setAttribute('stroke', '#DC2626');
+          el.tagBg[6].setAttribute('fill', '#FFFDF9');
+          el.tagText[6].textContent = '٦. شنطة الطوارئ المقفولة';
+          el.tagText[6].setAttribute('fill', '#991B1B');
+        }
+      }
+
+      /* =====================================================================
+         6. PUZZLE 1: ترابيزة الشباك (Storage + Mechanism + Missed Dose) -> 5
+         ===================================================================== */
+      const p1Els = {
+        stageA: document.getElementById('p1StageA'),
+        stageB: document.getElementById('p1StageB'),
+        reward: document.getElementById('p1Reward'),
+        sunPillTray: document.getElementById('sunPillTray'),
+        darkBottleZone: document.getElementById('darkBottleZone'),
+        bottleStatusSub: document.getElementById('bottleStatusSub'),
+        bottleCap: document.getElementById('p1BottleCap'),
+        bottleCountSvg: document.getElementById('p1BottleCountSvg'),
+        sealBtn: document.getElementById('p1SealBtn'),
+        shelveBtn: document.getElementById('p1ShelveBtn'),
+        chkPills: document.getElementById('p1ChkPills'),
+        chkCap: document.getElementById('p1ChkCap'),
+        chkSafe: document.getElementById('p1ChkSafe'),
+        feedbackA: document.getElementById('p1FeedbackA'),
+        feedbackB: document.getElementById('p1FeedbackB'),
+        submitQuizBtn: document.getElementById('p1SubmitQuizBtn')
+      };
+
+      function movePillToBottle(pillId) {
+        if (state.p1.pillsMoved.has(pillId)) return;
+        state.p1.pillsMoved.add(pillId);
+        sound.click();
+        const pillBtn = p1Els.sunPillTray.querySelector(`[data-pill="${pillId}"]`);
+        if (pillBtn) pillBtn.remove();
+
+        const count = state.p1.pillsMoved.size;
+        p1Els.bottleCountSvg.textContent = count + ' / 3';
+        p1Els.chkPills.textContent = (count === 3 ? '✓ ' : '○ ') + 'نقل الـ 3 حبوب للعلبة الأصلية (' + count + '/3)';
+        if (count === 3) {
+          p1Els.chkPills.className = 'done';
+          p1Els.sealBtn.disabled = false;
+          p1Els.bottleStatusSub.textContent = 'برافو! دلوقتي أحكم غلق الغطاء.';
+          p1Els.sunPillTray.innerHTML = '<span style="font-size:0.86rem; font-weight:800; color:#92400E;">العلبة البلاستيك فضيت!</span>';
+          sound.stepSuccess();
+        }
+      }
+
+      function bindP1PillEvents() {
+        p1Els.sunPillTray.querySelectorAll('.nitro-pill-btn').forEach(btn => {
+          btn.addEventListener('click', () => movePillToBottle(btn.dataset.pill));
+          btn.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', btn.dataset.pill));
+        });
+      }
+
+      function resetPuzzle1UI() {
+        state.p1 = { pillsMoved: new Set(), capped: false, shelved: false, q1Pick: null, q2Pick: null, q3Pick: null };
+        p1Els.stageA.style.display = 'block';
+        p1Els.stageB.style.display = 'none';
+        p1Els.reward.style.display = 'none';
+        p1Els.feedbackA.className = 'feedback-msg';
+        p1Els.feedbackB.className = 'feedback-msg';
+        p1Els.bottleCap.style.transform = 'translateY(0)';
+        p1Els.sealBtn.disabled = true;
+        p1Els.sealBtn.textContent = 'أحكم غلق الغطاء';
+        p1Els.shelveBtn.disabled = true;
+        p1Els.bottleStatusSub.textContent = 'اسحب الحبوب هنا أو اضغط عليها';
+        p1Els.bottleCountSvg.textContent = '0 / 3';
+        p1Els.chkPills.textContent = '○ نقل الـ 3 حبوب للعلبة الأصلية (0/3)';
+        p1Els.chkPills.className = '';
+        p1Els.chkCap.textContent = '○ إحكام غلق الغطاء';
+        p1Els.chkCap.className = '';
+        p1Els.chkSafe.textContent = '○ حماية من الحرارة والرطوبة والضوء والأطفال';
+        p1Els.chkSafe.className = '';
+
+        p1Els.sunPillTray.innerHTML = [1, 2, 3].map(n =>
+          `<button type="button" class="nitro-pill-btn" draggable="true" data-pill="${n}" title="اضغط أو اسحب لنقل الحباية">NTG</button>`
+        ).join('');
+        bindP1PillEvents();
+
+        document.querySelectorAll('#puzzle1Modal .option-btn').forEach(btn => {
+          btn.classList.remove('selected', 'correct', 'wrong');
+          btn.querySelector('.option-check').textContent = '';
+        });
+      }
+
+      p1Els.darkBottleZone.addEventListener('dragover', e => { e.preventDefault(); p1Els.darkBottleZone.classList.add('drag-over'); });
+      p1Els.darkBottleZone.addEventListener('dragleave', () => p1Els.darkBottleZone.classList.remove('drag-over'));
+      p1Els.darkBottleZone.addEventListener('drop', e => {
+        e.preventDefault();
+        p1Els.darkBottleZone.classList.remove('drag-over');
+        const id = e.dataTransfer.getData('text/plain');
+        if (id) movePillToBottle(id);
+      });
+
+      p1Els.sealBtn.addEventListener('click', () => {
+        if (state.p1.pillsMoved.size < 3 || state.p1.capped) return;
+        state.p1.capped = true;
+        sound.stepSuccess();
+        p1Els.bottleCap.style.transform = 'translateY(10px)';
+        p1Els.sealBtn.disabled = true;
+        p1Els.sealBtn.textContent = '✓ الغطاء محكم الغلق';
+        p1Els.chkCap.textContent = '✓ إحكام غلق الغطاء';
+        p1Els.chkCap.className = 'done';
+        p1Els.shelveBtn.disabled = false;
+        p1Els.bottleStatusSub.textContent = 'ممتاز! انقلها لمكان جاف وآمن.';
+      });
+
+      p1Els.shelveBtn.addEventListener('click', () => {
+        if (!state.p1.capped || state.p1.shelved) return;
+        state.p1.shelved = true;
+        sound.stepSuccess();
+        p1Els.chkSafe.textContent = '✓ حماية من الحرارة والرطوبة والضوء والأطفال';
+        p1Els.chkSafe.className = 'done';
+        p1Els.feedbackA.textContent = 'ممتاز! كده الدواء محفوظ في علبته الأصلية المحكمة الغلق بعيداً عن الحرارة والرطوبة والضوء ومتناول الأطفال. دلوقتي جاوب على سؤال سريع للتأكيد!';
+        p1Els.feedbackA.className = 'feedback-msg success show';
+        setTimeout(() => {
+          p1Els.stageA.style.display = 'none';
+          p1Els.stageB.style.display = 'block';
+        }, 850);
+      });
+
+      document.querySelectorAll('#puzzle1Modal .option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          sound.click();
+          document.querySelectorAll('#p1Q1Options .option-btn').forEach(b => {
+            b.classList.remove('selected', 'wrong');
+            b.querySelector('.option-check').textContent = '';
+          });
+          btn.classList.add('selected');
+          btn.querySelector('.option-check').textContent = '✓';
+          state.p1.q1Pick = btn;
+        });
+      });
+
+      p1Els.submitQuizBtn.addEventListener('click', () => {
+        if (!state.p1.q1Pick) {
+          p1Els.feedbackB.textContent = 'اختر إجابة الأول!';
+          p1Els.feedbackB.className = 'feedback-msg error show';
+          return;
+        }
+        const ok1 = state.p1.q1Pick.dataset.correct === 'true';
+        if (ok1) {
+          state.solved.p1 = true;
+          state.unlockedDigits[0] = SECRET_CODE[0];
+          sound.digitUnlock();
+          p1Els.stageB.style.display = 'none';
+          p1Els.reward.style.display = 'block';
+          updateRoomProgressUI();
+        } else {
+          state.p1.q1Pick.classList.add('wrong');
+          p1Els.feedbackB.textContent = 'إجابة غلط! حبوب النيتروجليسرين لازم تتحفظ في علبتها الأصلية المحكمة الغلق بعيداً عن الحرارة والرطوبة والضوء ومتناول الأطفال.';
+          p1Els.feedbackB.className = 'feedback-msg error show';
+          triggerPenalty('إجابة غير صحيحة');
+        }
+      });
+
+      /* =====================================================================
+         7. PUZZLE 2: عم سعيد والجرعة (Step Order + Spray + Pre-Activity) -> 1
+         ===================================================================== */
+      const p2Els = {
+        stageA: document.getElementById('p2StageA'),
+        stageB: document.getElementById('p2StageB'),
+        reward: document.getElementById('p2Reward'),
+        slots: document.getElementById('p2Slots'),
+        bank: document.getElementById('p2Bank'),
+        verifyOrderBtn: document.getElementById('p2VerifyOrderBtn'),
+        resetOrderBtn: document.getElementById('p2ResetOrderBtn'),
+        feedbackA: document.getElementById('p2FeedbackA'),
+        submitQuizBtn: document.getElementById('p2SubmitQuizBtn'),
+        feedbackB: document.getElementById('p2FeedbackB')
+      };
+
+      function renderP2OrderUI() {
+        p2Els.slots.innerHTML = [0, 1, 2, 3].map(idx => {
+          const picked = state.p2.orderSelection[idx];
+          if (picked) {
+            return `<div class="order-slot-row filled">
+              <span class="slot-badge">${idx + 1}</span>
+              <span class="slot-text">${picked.text}</span>
+              <button type="button" class="slot-remove-btn" data-remove-idx="${idx}">تراجع</button>
+            </div>`;
+          }
+          return `<div class="order-slot-row">
+            <span class="slot-badge">${idx + 1}</span>
+            <span class="slot-placeholder">اختر الخطوة رقم ${idx + 1} من الكروت تحت...</span>
+          </div>`;
+        }).join('');
+
+        p2Els.slots.querySelectorAll('[data-remove-idx]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            sound.click();
+            state.p2.orderSelection.splice(Number(btn.dataset.removeIdx), 1);
+            renderP2OrderUI();
+          });
+        });
+
+        const shuffled = [P2_STEPS[2], P2_STEPS[0], P2_STEPS[3], P2_STEPS[1]];
+        const chosenIds = new Set(state.p2.orderSelection.map(s => s.id));
+        p2Els.bank.innerHTML = shuffled.map(step => {
+          const disabled = chosenIds.has(step.id) ? 'disabled' : '';
+          return `<button type="button" class="step-card-btn" data-step-id="${step.id}" ${disabled}>
+            <span style="font-size:1.25rem;" aria-hidden="true">${step.icon}</span>
+            <span>${step.text}</span>
+          </button>`;
+        }).join('');
+
+        p2Els.bank.querySelectorAll('.step-card-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            if (state.p2.orderSelection.length >= 4) return;
+            sound.click();
+            const found = P2_STEPS.find(s => s.id === btn.dataset.stepId);
+            if (found) {
+              state.p2.orderSelection.push(found);
+              renderP2OrderUI();
+            }
+          });
+        });
+
+        p2Els.verifyOrderBtn.disabled = state.p2.orderSelection.length < 4;
+      }
+
+      function resetPuzzle2UI() {
+        state.p2 = { orderSelection: [], q1Pick: null, q2Pick: null, q3Pick: null };
+        p2Els.stageA.style.display = 'block';
+        p2Els.stageB.style.display = 'none';
+        p2Els.reward.style.display = 'none';
+        p2Els.feedbackA.className = 'feedback-msg';
+        p2Els.feedbackB.className = 'feedback-msg';
+        renderP2OrderUI();
+        document.querySelectorAll('#puzzle2Modal .option-btn').forEach(btn => {
+          btn.classList.remove('selected', 'correct', 'wrong');
+          btn.querySelector('.option-check').textContent = '';
+        });
+      }
+
+      p2Els.resetOrderBtn.addEventListener('click', () => {
+        sound.click();
+        state.p2.orderSelection = [];
+        p2Els.feedbackA.className = 'feedback-msg';
+        renderP2OrderUI();
+      });
+
+      p2Els.verifyOrderBtn.addEventListener('click', () => {
+        const isCorrect = state.p2.orderSelection.every((step, i) => step.order === i + 1);
+        if (isCorrect) {
+          sound.stepSuccess();
+          p2Els.feedbackA.textContent = 'ترتيب ممتاز 100%! دلوقتي 3 أسئلة سريعة عن آلية عمل الدواء، البخاخ، والوقاية قبل المجهود.';
+          p2Els.feedbackA.className = 'feedback-msg success show';
+          setTimeout(() => {
+            p2Els.stageA.style.display = 'none';
+            p2Els.stageB.style.display = 'block';
+          }, 900);
+        } else {
+          p2Els.feedbackA.textContent = 'الترتيب مش مظبوط! تلميح: الجلوس أولاً لتجنب الدوخة، ثم الحباية تحت اللسان، ثم الانتظار 5 دقائق، ثم طلب الطوارئ 123.';
+          p2Els.feedbackA.className = 'feedback-msg error show';
+          triggerPenalty('ترتيب الخطوات غير صحيح');
+        }
+      });
+
+      document.querySelectorAll('#puzzle2Modal .option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          sound.click();
+          const q = btn.dataset.q;
+          const group = '#p2Q' + q + 'Options';
+          document.querySelectorAll(group + ' .option-btn').forEach(b => {
+            b.classList.remove('selected', 'wrong');
+            b.querySelector('.option-check').textContent = '';
+          });
+          btn.classList.add('selected');
+          btn.querySelector('.option-check').textContent = '✓';
+          state.p2['q' + q + 'Pick'] = btn;
+        });
+      });
+
+      p2Els.submitQuizBtn.addEventListener('click', () => {
+        if (!state.p2.q1Pick || !state.p2.q2Pick || !state.p2.q3Pick) {
+          p2Els.feedbackB.textContent = 'اختر إجابة لكل الأسئلة الأول!';
+          p2Els.feedbackB.className = 'feedback-msg error show';
+          return;
+        }
+        const ok1 = state.p2.q1Pick.dataset.correct === 'true';
+        const ok2 = state.p2.q2Pick.dataset.correct === 'true';
+        const ok3 = state.p2.q3Pick.dataset.correct === 'true';
+        if (ok1 && ok2 && ok3) {
+          state.solved.p2 = true;
+          state.unlockedDigits[1] = SECRET_CODE[1];
+          sound.digitUnlock();
+          p2Els.stageB.style.display = 'none';
+          p2Els.reward.style.display = 'block';
+          updateRoomProgressUI();
+        } else {
+          if (!ok1) state.p2.q1Pick.classList.add('wrong');
+          if (!ok2) state.p2.q2Pick.classList.add('wrong');
+          if (!ok3) state.p2.q3Pick.classList.add('wrong');
+          p2Els.feedbackB.textContent = 'راجع الإجابة اللي باللون الأحمر! النيتروجليسرين بيوسّع الأوعية الدموية، البخاخ تحت اللسان، وللوقاية يُؤخذ قبل النشاط بوقت قصير حسب توجيهات الطبيب.';
+          p2Els.feedbackB.className = 'feedback-msg error show';
+          triggerPenalty('إجابة غير صحيحة');
+        }
+      });
+
+      /* =====================================================================
+         8. PUZZLE 3: تليفون الطوارئ 123 (Red-Flag Signs + Emergency Action) -> 2
+         ===================================================================== */
+      const p3Els = {
+        stageA: document.getElementById('p3StageA'),
+        stageB: document.getElementById('p3StageB'),
+        reward: document.getElementById('p3Reward'),
+        redFlagsList: document.getElementById('p3RedFlagsList'),
+        verifyRedFlagsBtn: document.getElementById('p3VerifyRedFlagsBtn'),
+        feedbackA: document.getElementById('p3FeedbackA'),
+        scenarioOptions: document.getElementById('p3ScenarioOptions'),
+        submitScenarioBtn: document.getElementById('p3SubmitScenarioBtn'),
+        feedbackB: document.getElementById('p3FeedbackB')
+      };
+
+      function resetPuzzle3UI() {
+        state.p3 = { redFlagsSelected: new Set(), scenarioPick: null };
+        p3Els.stageA.style.display = 'block';
+        p3Els.stageB.style.display = 'none';
+        p3Els.reward.style.display = 'none';
+        p3Els.feedbackA.className = 'feedback-msg';
+        p3Els.feedbackB.className = 'feedback-msg';
+        document.querySelectorAll('#puzzle3Modal .option-btn').forEach(btn => {
+          btn.classList.remove('selected', 'correct', 'wrong');
+          btn.querySelector('.option-check').textContent = '';
+        });
+      }
+
+      p3Els.redFlagsList.querySelectorAll('.option-btn').forEach((btn, idx) => {
+        btn.addEventListener('click', () => {
+          sound.click();
+          btn.classList.remove('wrong');
+          if (state.p3.redFlagsSelected.has(idx)) {
+            state.p3.redFlagsSelected.delete(idx);
+            btn.classList.remove('selected');
+            btn.querySelector('.option-check').textContent = '';
+          } else {
+            state.p3.redFlagsSelected.add(idx);
+            btn.classList.add('selected');
+            btn.querySelector('.option-check').textContent = '✓';
+          }
+        });
+      });
+
+      p3Els.verifyRedFlagsBtn.addEventListener('click', () => {
+        const btns = Array.from(p3Els.redFlagsList.querySelectorAll('.option-btn'));
+        let wrongPicked = false;
+        let missedTrue = false;
+        btns.forEach((btn, idx) => {
+          const isTrueRF = btn.dataset.rf === 'true';
+          const isPicked = state.p3.redFlagsSelected.has(idx);
+          if (isPicked && !isTrueRF) { wrongPicked = true; btn.classList.add('wrong'); }
+          if (!isPicked && isTrueRF) missedTrue = true;
+        });
+
+        if (!wrongPicked && !missedTrue) {
+          sound.stepSuccess();
+          p3Els.feedbackA.textContent = 'ممتاز! عرفت كل الـ 4 علامات الخطيرة بدقة. فاضل موقف واحد سريع!';
+          p3Els.feedbackA.className = 'feedback-msg success show';
+          setTimeout(() => {
+            p3Els.stageA.style.display = 'none';
+            p3Els.stageB.style.display = 'block';
+          }, 900);
+        } else {
+          p3Els.feedbackA.textContent = wrongPicked
+            ? 'خلي بالك! الصداع الخفيف المؤقت أو اختفاء الألم خلال 3 دقائق مش علامات طوارئ. اختار الـ 4 علامات الخطيرة بس.'
+            : 'لسه في علامة خطر مهمة مخترتهاش! اختار الـ 4 علامات الخطيرة كلهم.';
+          p3Els.feedbackA.className = 'feedback-msg error show';
+          triggerPenalty('علامات الخطر غير مظبوطة');
+        }
+      });
+
+      p3Els.scenarioOptions.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          sound.click();
+          p3Els.scenarioOptions.querySelectorAll('.option-btn').forEach(b => {
+            b.classList.remove('selected', 'wrong');
+            b.querySelector('.option-check').textContent = '';
+          });
+          btn.classList.add('selected');
+          btn.querySelector('.option-check').textContent = '✓';
+          state.p3.scenarioPick = btn;
+        });
+      });
+
+      p3Els.submitScenarioBtn.addEventListener('click', () => {
+        if (!state.p3.scenarioPick) {
+          p3Els.feedbackB.textContent = 'اختر الإجابة الصح الأول!';
+          p3Els.feedbackB.className = 'feedback-msg error show';
+          return;
+        }
+        if (state.p3.scenarioPick.dataset.correct === 'true') {
+          state.solved.p3 = true;
+          state.unlockedDigits[2] = SECRET_CODE[2];
+          sound.digitUnlock();
+          p3Els.stageB.style.display = 'none';
+          p3Els.reward.style.display = 'block';
+          updateRoomProgressUI();
+        } else {
+          state.p3.scenarioPick.classList.add('wrong');
+          p3Els.feedbackB.textContent = 'غلط! لو الألم مستمر بعد 5 دقائق نطلب الطوارئ 123 فوراً، وممكن أخذ جرعات إضافية حسب تعليمات الطبيب أثناء الانتظار.';
+          p3Els.feedbackB.className = 'feedback-msg error show';
+          triggerPenalty('تصرف طوارئ خاطئ');
+        }
+      });
+
+      /* =====================================================================
+         9. PUZZLE 4: درج الأدوية (5 Dangerous Contraindications/Habits) -> 3
+         ===================================================================== */
+      const p4Els = {
+        stageA: document.getElementById('p4StageA'),
+        stageB: document.getElementById('p4StageB'),
+        reward: document.getElementById('p4Reward'),
+        drawerGrid: document.getElementById('p4DrawerGrid'),
+        cleanCount: document.getElementById('p4CleanCount'),
+        feedbackA: document.getElementById('p4FeedbackA'),
+        submitDangerBtn: document.getElementById('p4SubmitDangerBtn'),
+        feedbackB: document.getElementById('p4FeedbackB')
+      };
+
+      function getDrawerSvg(item) {
+        if (item.id === 'pde5' || item.id === 'riociguat') {
+          return `<svg width="26" height="26" viewBox="0 0 28 28"><rect x="4" y="6" width="20" height="16" rx="4" fill="${item.color}"/><line x1="9" y1="14" x2="19" y2="14" stroke="#FFF" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+        }
+        if (item.id === 'alcohol') {
+          return `<svg width="26" height="26" viewBox="0 0 28 28"><path d="M9 5h10l-1 8a4 4 0 0 1-8 0L9 5z" fill="#DC2626"/><line x1="14" y1="17" x2="14" y2="23" stroke="#2C221E" stroke-width="2.5"/><line x1="10" y1="23" x2="18" y2="23" stroke="#2C221E" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+        }
+        if (item.id === 'standfast' || item.id === 'extradoses') {
+          return `<svg width="26" height="26" viewBox="0 0 28 28"><polygon points="14,4 25,23 3,23" fill="${item.color}" stroke="#2C221E" stroke-width="1.8"/><text x="14" y="20" text-anchor="middle" font-size="13" font-weight="900" fill="#FFF">!</text></svg>`;
+        }
+        return `<svg width="26" height="26" viewBox="0 0 28 28"><rect x="4" y="5" width="20" height="18" rx="4" fill="${item.color}"/><path d="M10 14l3 3 5-6" fill="none" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      }
+
+      function renderP4Drawer() {
+        p4Els.cleanCount.textContent = `(تم إزالة ${state.p4.removedDangerIds.size} من 5)`;
+        p4Els.drawerGrid.innerHTML = P4_DRAWER_ITEMS.map(item => {
+          const isRemoved = state.p4.removedDangerIds.has(item.id);
+          return `<button type="button" class="drawer-item ${isRemoved ? 'removed' : ''}" data-item-id="${item.id}" ${isRemoved ? 'disabled' : ''}>
+            <div class="drawer-icon">${getDrawerSvg(item)}</div>
+            <div>
+              <div class="drawer-item-title">${item.title}</div>
+              <div class="drawer-item-desc">${item.desc}</div>
+              ${isRemoved ? '<span class="drawer-status-tag">✓ تم استبعاده (ممنوع)</span>' : ''}
+            </div>
+          </button>`;
+        }).join('');
+
+        p4Els.drawerGrid.querySelectorAll('.drawer-item').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const item = P4_DRAWER_ITEMS.find(x => x.id === btn.dataset.itemId);
+            if (!item || state.p4.removedDangerIds.has(item.id)) return;
+
+            if (item.dangerous) {
+              state.p4.removedDangerIds.add(item.id);
+              sound.stepSuccess();
+              p4Els.feedbackA.textContent = item.reason;
+              p4Els.feedbackA.className = 'feedback-msg success show';
+              renderP4Drawer();
+
+              if (state.p4.removedDangerIds.size === 5) {
+                setTimeout(() => {
+                  p4Els.stageA.style.display = 'none';
+                  p4Els.stageB.style.display = 'block';
+                }, 950);
+              }
+            } else {
+              btn.classList.add('safe-checked');
+              p4Els.feedbackA.textContent = item.reason;
+              p4Els.feedbackA.className = 'feedback-msg error show';
+              triggerPenalty('ده عنصر آمن ومفيد!');
+            }
+          });
+        });
+      }
+
+      function resetPuzzle4UI() {
+        state.p4 = { removedDangerIds: new Set(), q1Pick: null, q2Pick: null };
+        p4Els.stageA.style.display = 'block';
+        p4Els.stageB.style.display = 'none';
+        p4Els.reward.style.display = 'none';
+        p4Els.feedbackA.className = 'feedback-msg';
+        p4Els.feedbackB.className = 'feedback-msg';
+        renderP4Drawer();
+        document.querySelectorAll('#puzzle4Modal .option-btn').forEach(btn => {
+          btn.classList.remove('selected', 'correct', 'wrong');
+          btn.querySelector('.option-check').textContent = '';
+        });
+      }
+
+      document.querySelectorAll('#puzzle4Modal .option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          sound.click();
+          const q = btn.dataset.q;
+          const group = '#p4Q' + q + 'Options';
+          document.querySelectorAll(group + ' .option-btn').forEach(b => {
+            b.classList.remove('selected', 'wrong');
+            b.querySelector('.option-check').textContent = '';
+          });
+          btn.classList.add('selected');
+          btn.querySelector('.option-check').textContent = '✓';
+          state.p4['q' + q + 'Pick'] = btn;
+        });
+      });
+
+      p4Els.submitDangerBtn.addEventListener('click', () => {
+        if (!state.p4.q1Pick || !state.p4.q2Pick) {
+          p4Els.feedbackB.textContent = 'اختر إجابة لكل سؤال الأول!';
+          p4Els.feedbackB.className = 'feedback-msg error show';
+          return;
+        }
+        const ok1 = state.p4.q1Pick.dataset.correct === 'true';
+        const ok2 = state.p4.q2Pick.dataset.correct === 'true';
+        if (ok1 && ok2) {
+          state.solved.p4 = true;
+          state.unlockedDigits[3] = SECRET_CODE[3];
+          sound.digitUnlock();
+          p4Els.stageB.style.display = 'none';
+          p4Els.reward.style.display = 'block';
+          updateRoomProgressUI();
+        } else {
+          if (!ok1) state.p4.q1Pick.classList.add('wrong');
+          if (!ok2) state.p4.q2Pick.classList.add('wrong');
+          p4Els.feedbackB.textContent = 'راجع الإجابة اللي باللون الأحمر! الفياجرا/السياليس أو ريوسيجوات تسبب هبوطاً خطيراً في الضغط، وممنوع مضاعفة الجرعة الفائتة للأنواع المنتظمة.';
+          p4Els.feedbackB.className = 'feedback-msg error show';
+          triggerPenalty('إجابة غير صحيحة');
+        }
+      });
+
+      /* =====================================================================
+         10. PUZZLE 5: ترابيزة العادات والخرافات (3 Myths + 4 Lifestyle Tips) -> 4
+         ===================================================================== */
+      const p5Els = {
+        stageA: document.getElementById('p5StageA'),
+        stageB: document.getElementById('p5StageB'),
+        reward: document.getElementById('p5Reward'),
+        mythsList: document.getElementById('p5MythsList'),
+        feedbackA: document.getElementById('p5FeedbackA'),
+        lifestyleList: document.getElementById('p5LifestyleList'),
+        verifyLifestyleBtn: document.getElementById('p5VerifyLifestyleBtn'),
+        feedbackB: document.getElementById('p5FeedbackB')
+      };
+
+      function renderP5Myths() {
+        p5Els.mythsList.innerHTML = P5_MYTHS.map(m => {
+          const done = state.p5.mythsSolved.has(m.id);
+          return `<div class="myth-card ${done ? 'solved-myth' : ''}" data-myth-id="${m.id}">
+            <div class="myth-statement">${m.statement}</div>
+            <div class="myth-actions">
+              <button type="button" class="myth-btn ${done && !m.isFact ? 'active-correct' : ''}" data-ans="myth" ${done ? 'disabled' : ''}>خرافة ❌</button>
+              <button type="button" class="myth-btn ${done && m.isFact ? 'active-correct' : ''}" data-ans="fact" ${done ? 'disabled' : ''}>حقيقة ✅</button>
+            </div>
+            ${done ? `<div class="myth-explain">${m.explain}</div>` : ''}
+          </div>`;
+        }).join('');
+
+        p5Els.mythsList.querySelectorAll('.myth-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const card = btn.closest('.myth-card');
+            const m = P5_MYTHS.find(x => x.id === card.dataset.mythId);
+            if (!m || state.p5.mythsSolved.has(m.id)) return;
+
+            const pickedFact = btn.dataset.ans === 'fact';
+            if (pickedFact === m.isFact) {
+              state.p5.mythsSolved.add(m.id);
+              sound.stepSuccess();
+              p5Els.feedbackA.className = 'feedback-msg';
+              renderP5Myths();
+
+              if (state.p5.mythsSolved.size === P5_MYTHS.length) {
+                setTimeout(() => {
+                  p5Els.stageA.style.display = 'none';
+                  p5Els.stageB.style.display = 'block';
+                }, 950);
+              }
+            } else {
+              p5Els.feedbackA.textContent = 'حاول تاني! راجع المعلومات الصح عن الصداع، الفياجرا، وذوبان الحباية تحت اللسان.';
+              p5Els.feedbackA.className = 'feedback-msg error show';
+              triggerPenalty('اختيار غير صحيح');
+            }
+          });
+        });
+      }
+
+      function resetPuzzle5UI() {
+        state.p5 = { mythsSolved: new Set(), lifestyleSelected: new Set() };
+        p5Els.stageA.style.display = 'block';
+        p5Els.stageB.style.display = 'none';
+        p5Els.reward.style.display = 'none';
+        p5Els.feedbackA.className = 'feedback-msg';
+        p5Els.feedbackB.className = 'feedback-msg';
+        renderP5Myths();
+        p5Els.lifestyleList.querySelectorAll('.option-btn').forEach(btn => {
+          btn.classList.remove('selected', 'correct', 'wrong');
+          btn.querySelector('.option-check').textContent = '';
+        });
+      }
+
+      p5Els.lifestyleList.querySelectorAll('.option-btn').forEach((btn, idx) => {
+        btn.addEventListener('click', () => {
+          sound.click();
+          btn.classList.remove('wrong');
+          if (state.p5.lifestyleSelected.has(idx)) {
+            state.p5.lifestyleSelected.delete(idx);
+            btn.classList.remove('selected');
+            btn.querySelector('.option-check').textContent = '';
+          } else {
+            state.p5.lifestyleSelected.add(idx);
+            btn.classList.add('selected');
+            btn.querySelector('.option-check').textContent = '✓';
+          }
+        });
+      });
+
+      p5Els.verifyLifestyleBtn.addEventListener('click', () => {
+        const btns = Array.from(p5Els.lifestyleList.querySelectorAll('.option-btn'));
+        let wrongPicked = false;
+        let missedTrue = false;
+        btns.forEach((btn, idx) => {
+          const isTrue = btn.dataset.ls === 'true';
+          const isPicked = state.p5.lifestyleSelected.has(idx);
+          if (isPicked && !isTrue) { wrongPicked = true; btn.classList.add('wrong'); }
+          if (!isPicked && isTrue) missedTrue = true;
+        });
+
+        if (!wrongPicked && !missedTrue) {
+          state.solved.p5 = true;
+          state.unlockedDigits[4] = SECRET_CODE[4];
+          sound.digitUnlock();
+          p5Els.stageB.style.display = 'none';
+          p5Els.reward.style.display = 'block';
+          updateRoomProgressUI();
+        } else {
+          p5Els.feedbackB.textContent = wrongPicked
+            ? 'خلي بالك! ممنوع وقف أدوية القلب فجأة وممنوع مضاعفة الجرعة الفائتة. اختار الـ 4 عادات الصحية بس.'
+            : 'لسه في عادة صحية مهمة مخترتهاش! اختار الـ 4 نصائح الصحية كلهم.';
+          p5Els.feedbackB.className = 'feedback-msg error show';
+          triggerPenalty('اختيارات نمط الحياة غير مكتملة');
+        }
+      });
+
+      /* =====================================================================
+         11. PUZZLE 6: شنطة الطوارئ المقفولة (5-Digit Lock: 5 - 1 - 2 - 3 - 4)
+         ===================================================================== */
+      const safeFeedback = document.getElementById('safeFeedback');
+      const dialValEls = [0, 1, 2, 3, 4].map(i => document.getElementById('dialVal' + i));
+
+      function renderDials() {
+        state.dials.forEach((v, i) => { dialValEls[i].textContent = String(v); });
+      }
+
+      document.querySelectorAll('.dial-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.dial);
+          const dir = Number(btn.dataset.dir);
+          state.dials[idx] = (state.dials[idx] + dir + 10) % 10;
+          sound.dialTick();
+          renderDials();
+          safeFeedback.className = 'feedback-msg';
+        });
+      });
+
+      document.getElementById('unlockSafeBtn').addEventListener('click', () => {
+        const match = SECRET_CODE.every((digit, idx) => state.dials[idx] === digit);
+        if (match) {
+          winGame();
+        } else {
+          const allSolved = [state.solved.p1, state.solved.p2, state.solved.p3, state.solved.p4, state.solved.p5].every(Boolean);
+          safeFeedback.textContent = allSolved
+            ? 'الكود غلط! راجع الـ 5 أرقام اللي فوق في الشريط العلوي بالترتيب (١ الشباك ← ٢ عم سعيد ← ٣ الطوارئ ← ٤ الدرج ← ٥ العادات).'
+            : 'الكود غلط! حل الألغاز الـ 5 في الغرفة الأول عشان تعرف الكود السري كامل.';
+          safeFeedback.className = 'feedback-msg error show';
+          triggerPenalty('كود الخزنة غير صحيح');
+        }
+      });
+
+      /* =====================================================================
+         12. VICTORY CELEBRATION & CONFETTI
+         ===================================================================== */
+      let confettiAnimId = null;
+
+      function launchConfetti() {
+        const canvas = document.getElementById('confettiCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const colors = ['#0F766E', '#F59E0B', '#DC2626', '#10B981', '#3B82F6', '#FBBF24'];
+        const pieces = Array.from({ length: 130 }, () => ({
+          x: Math.random() * canvas.width,
+          y: -20 - Math.random() * canvas.height * 0.5,
+          w: 7 + Math.random() * 7,
+          h: 10 + Math.random() * 8,
+          vx: (Math.random() - 0.5) * 3.5,
+          vy: 2.5 + Math.random() * 4,
+          rot: Math.random() * Math.PI * 2,
+          vrot: (Math.random() - 0.5) * 0.18,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        }));
+
+        const startTime = performance.now();
+        function frame(now) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          const elapsed = now - startTime;
+          pieces.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.rot += p.vrot;
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = elapsed > 3600 ? Math.max(0, 1 - (elapsed - 3600) / 1400) : 1;
+            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+            ctx.restore();
+          });
+          if (elapsed < 5000) confettiAnimId = requestAnimationFrame(frame);
+          else ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+        confettiAnimId = requestAnimationFrame(frame);
+      }
+
+      function winGame() {
+        state.phase = 'WON';
+        stopTimer();
+        hideModal(el.modals[6]);
+        updateRoomProgressUI();
+        sound.victory();
+        launchConfetti();
+
+        document.getElementById('victoryHeadline').textContent =
+          `برافو يا ${state.playerName}! أنت كده أنقذت عم سعيد وعرّفته كل المعلومات الصح، والخزنة اتفتحت ووصلنا لعلبة النيتروجليسرين!`;
+        document.getElementById('victoryMeta').textContent =
+          `الكود السري: 5 - 1 - 2 - 3 - 4 · الوقت المتبقي: ${formatTime(state.timeLeft)} · عدد الأخطاء: ${state.mistakes}`;
+
+        const door = document.getElementById('animatedSafeDoor');
+        door.style.animation = 'none';
+        void door.offsetWidth;
+        door.style.animation = '';
+
+        showModal(el.victoryModal);
+      }
+
+      /* =====================================================================
+         13. GAME FLOW & EVENT BINDINGS
+         ===================================================================== */
+      function resetFullGame(goToStartScreen) {
+        stopTimer();
+        if (confettiAnimId) {
+          cancelAnimationFrame(confettiAnimId);
+          const canvas = document.getElementById('confettiCanvas');
+          canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        }
+        state.timeLeft = INITIAL_TIME;
+        state.mistakes = 0;
+        state.panicUntil = 0;
+        state.solved = { p1: false, p2: false, p3: false, p4: false, p5: false };
+        state.unlockedDigits = [null, null, null, null, null];
+        state.dials = [0, 0, 0, 0, 0];
+        safeFeedback.className = 'feedback-msg';
+
+        resetPuzzle1UI();
+        resetPuzzle2UI();
+        resetPuzzle3UI();
+        resetPuzzle4UI();
+        resetPuzzle5UI();
+        renderDials();
+        hideAllGameModals();
+
+        if (goToStartScreen) {
+          state.phase = 'START';
+          updateRoomProgressUI();
+          updateTimerAndECG();
+          showModal(el.startModal);
+        } else {
+          state.phase = 'PLAYING';
+          updateRoomProgressUI();
+          startTimer();
+        }
+      }
+
+      el.startForm.addEventListener('submit', e => {
+        e.preventDefault();
+        sound.init();
+        sound.stepSuccess();
+        state.playerName = el.playerNameInput.value.trim() || 'بطل الطوارئ';
+        el.hudPlayerName.textContent = state.playerName;
+        hideModal(el.startModal);
+        resetFullGame(false);
+        requestAnimationFrame(centerRoomOnMobile);
+      });
+
+      function openHotspot(num) {
+        if (state.phase === 'START') return;
+        sound.click();
+        if (state.phase === 'WON' && num === 6) {
+          showModal(el.victoryModal);
+          return;
+        }
+        const puzzleMap = [null, { k: 'p1', els: p1Els }, { k: 'p2', els: p2Els }, { k: 'p3', els: p3Els }, { k: 'p4', els: p4Els }, { k: 'p5', els: p5Els }];
+        if (num >= 1 && num <= 5) {
+          const item = puzzleMap[num];
+          if (state.solved[item.k]) {
+            item.els.stageA.style.display = 'none';
+            item.els.stageB.style.display = 'none';
+            item.els.reward.style.display = 'block';
+          }
+          showModal(el.modals[num]);
+        } else if (num === 6) {
+          safeFeedback.className = 'feedback-msg';
+          showModal(el.modals[6]);
+        }
+      }
+
+      [1, 2, 3, 4, 5, 6].forEach(num => {
+        el.hotspots[num].addEventListener('click', () => openHotspot(num));
+        el.hotspots[num].addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openHotspot(num);
+          }
+        });
+      });
+
+      document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          sound.click();
+          const modal = document.getElementById(btn.dataset.close);
+          if (modal) hideModal(modal);
+        });
+      });
+
+      for (let i = 1; i <= 6; i++) {
+        el.modals[i].addEventListener('click', e => {
+          if (e.target === el.modals[i]) {
+            sound.click();
+            hideModal(el.modals[i]);
+          }
+        });
+      }
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+          for (let i = 1; i <= 6; i++) hideModal(el.modals[i]);
+        }
+      });
+
+      el.soundToggleBtn.addEventListener('click', () => {
+        sound.enabled = !sound.enabled;
+        el.soundOnIcon.style.display = sound.enabled ? 'block' : 'none';
+        el.soundOffIcon.style.display = sound.enabled ? 'none' : 'block';
+        el.soundToggleBtn.classList.toggle('muted', !sound.enabled);
+        if (sound.enabled) {
+          sound.click();
+          if (state.phase === 'PLAYING' && !state.pulseId) {
+            scheduleNextPulse();
+          }
+        }
+      });
+
+      document.getElementById('playAgainBtn').addEventListener('click', () => {
+        sound.click();
+        resetFullGame(true);
+      });
+
+      el.retryAfterTimeoutBtn.addEventListener('click', () => {
+        sound.click();
+        resetFullGame(false);
+      });
+
+      // Hide mobile swipe hint once the player scrolls the panoramic room
+      const roomScrollEl = document.getElementById('roomScroll');
+      const roomSwipeHintEl = document.getElementById('roomSwipeHint');
+      if (roomScrollEl && roomSwipeHintEl) {
+        let initialCentered = false;
+        roomScrollEl.addEventListener('scroll', () => {
+          if (initialCentered) roomSwipeHintEl.classList.add('hidden');
+        }, { passive: true });
+        requestAnimationFrame(() => {
+          centerRoomOnMobile();
+          setTimeout(() => { initialCentered = true; }, 250);
+        });
+      }
+
+      // Initial Setup
+      resetPuzzle1UI();
+      resetPuzzle2UI();
+      resetPuzzle3UI();
+      resetPuzzle4UI();
+      resetPuzzle5UI();
+      renderDials();
+      updateTimerAndECG();
+      updateRoomProgressUI();
+      syncBodyScrollLock();
+    })();
+  </script>
+</body>
+</html>
